@@ -1,2 +1,8 @@
-gradio
-requests
+gradio>=5.25.2
+requests>=2.31.0
+pandas>=2.0.0
+Pillow>=10.0.0
+smolagents>=0.13.0
+huggingface_hub>=0.19.0
+python-chess>=1.9.4
+python-dotenv>=1.0.0

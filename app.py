@@ -3,32 +3,93 @@ import gradio as gr
 import requests
 import inspect
 import pandas as pd
+import json
+from pathlib import Path
+from dotenv import load_dotenv
 
-# (Keep Constants as is)
+# Load environment variables from .env file
+load_dotenv()
+
+# Import the SmolAgent class
+from agent import SmolAgent
+
 # --- Constants ---
 DEFAULT_API_URL = "https://agents-course-unit4-scoring.hf.space"
+FILES_DIR = "files"
+CACHE_DIR = "cache"
 
-# --- Basic Agent Definition ---
-# ----- THIS IS WERE YOU CAN BUILD WHAT YOU WANT ------
-class BasicAgent:
-    def __init__(self):
-        print("BasicAgent initialized.")
-    def __call__(self, question: str) -> str:
-        print(f"Agent received question (first 50 chars): {question[:50]}...")
-        fixed_answer = "This is a default answer."
-        print(f"Agent returning fixed answer: {fixed_answer}")
-        return fixed_answer
+# Ensure directories exist
+os.makedirs(FILES_DIR, exist_ok=True)
+os.makedirs(CACHE_DIR, exist_ok=True)
 
-def run_and_submit_all( profile: gr.OAuthProfile | None):
+def run_agent_locally():
     """
-    Fetches all questions, runs the BasicAgent on them, submits all answers,
+    Run the agent locally without submission - for testing purposes
+    """
+    print("Running agent locally for testing...")
+    
+    try:
+        # Use mock model for local testing
+        agent = SmolAgent(use_mock=True)
+        print("SmolAgent initialized successfully with mock model.")
+    except Exception as e:
+        print(f"Error instantiating agent: {e}")
+        return f"Error initializing agent: {e}"
+    
+    # Test question
+    test_question = "What is 2 + 2?"
+    print(f"Testing agent with question: {test_question}")
+    
+    try:
+        answer = agent(test_question)
+        return f"Agent test successful! Answer: {answer}"
+    except Exception as e:
+        print(f"Error running agent: {e}")
+        return f"Error running agent: {e}"
+
+def run_local_demo():
+    """
+    Simplified version for local testing - doesn't require HF login
+    """
+    print("Running in local demo mode...")
+    
+    # Test questions
+    test_questions = [
+        {"id": "q1", "question": "What is 2 + 2?", "type": "math"},
+        {"id": "q2", "question": "Analyze this chess position and find the best move.", "type": "chess"},
+        {"id": "q3", "question": "Describe what's in this image.", "type": "image"}
+    ]
+    
+    try:
+        # Use mock model for local testing
+        agent = SmolAgent(use_mock=True)
+        print("SmolAgent initialized successfully with mock model.")
+        
+        results = []
+        for q in test_questions:
+            answer = agent(q["question"])
+            results.append({
+                "Task ID": q["id"],
+                "Question": q["question"],
+                "Type": q["type"],
+                "Answer": answer
+            })
+        
+        return "Local test successful! Processed 3 test questions.", pd.DataFrame(results)
+    except Exception as e:
+        print(f"Error in local demo: {e}")
+        return f"Error in local demo: {e}", None
+
+def run_and_submit_all(profile: gr.OAuthProfile | None):
+    """
+    Fetches all questions, runs the SmolAgent on them, submits all answers,
     and displays the results.
     """
     # --- Determine HF Space Runtime URL and Repo URL ---
     space_id = os.getenv("SPACE_ID") # Get the SPACE_ID for sending link to the code
 
     if profile:
-        username= f"{profile.username}"
+        username = f"{profile.username}"
         print(f"User logged in: {username}")
     else:
         print("User not logged in.")
@@ -38,15 +99,22 @@ def run_and_submit_all( profile: gr.OAuthProfile | None):
     questions_url = f"{api_url}/questions"
     submit_url = f"{api_url}/submit"
 
-    # 1. Instantiate Agent ( modify this part to create your agent)
+    # 1. Instantiate Agent
     try:
-        agent = BasicAgent()
+        # Get Hugging Face API token from environment variable
+        hf_token = os.environ.get("HF_TOKEN")
+        if not hf_token:
+            return "Error: Please set your HF_TOKEN in .env file or environment variables.", None
+            
+        agent = SmolAgent(hf_token=hf_token, api_url=api_url)
+        print("SmolAgent initialized successfully.")
     except Exception as e:
         print(f"Error instantiating agent: {e}")
         return f"Error initializing agent: {e}", None
-    # In the case of an app running as a hugging Face space, this link points toward your codebase ( usefull for others so please keep it public)
+        
+    # In the case of an app running as a Hugging Face space, this link points toward your codebase
     agent_code = f"https://huggingface.co/spaces/{space_id}/tree/main"
-    print(agent_code)
+    print(f"Agent code URL: {agent_code}")
 
     # 2. Fetch Questions
     print(f"Fetching questions from: {questions_url}")
@@ -73,16 +141,46 @@ def run_and_submit_all( profile: gr.OAuthProfile | None):
     results_log = []
     answers_payload = []
     print(f"Running agent on {len(questions_data)} questions...")
+    
+    # Load cache to avoid reprocessing questions
+    cache_path = Path(CACHE_DIR) / "answers_cache.json"
+    cache = {}
+    if cache_path.exists():
+        try:
+            with open(cache_path, "r") as f:
+                cache = json.load(f)
+            print(f"Loaded {len(cache)} cached answers.")
+        except Exception as e:
+            print(f"Error loading cache: {e}")
+    
     for item in questions_data:
         task_id = item.get("task_id")
         question_text = item.get("question")
+        file_name = item.get("file_name")  # Get file name if present
+        
         if not task_id or question_text is None:
             print(f"Skipping item with missing task_id or question: {item}")
             continue
+            
         try:
-            submitted_answer = agent(question_text)
+            print(f"\nProcessing task: {task_id}")
+            print(f"Question: {question_text[:100]}...")
+            if file_name:
+                print(f"Has associated file: {file_name}")
+            
+            # Process the question with our SmolAgent
+            submitted_answer = agent(question_text, task_id=task_id, file_name=file_name)
+            
             answers_payload.append({"task_id": task_id, "submitted_answer": submitted_answer})
-            results_log.append({"Task ID": task_id, "Question": question_text, "Submitted Answer": submitted_answer})
+            results_log.append({
+                "Task ID": task_id, 
+                "Question": question_text, 
+                "File": file_name if file_name else "None",
+                "Submitted Answer": submitted_answer
+            })
+            
+            print(f"Answer: {submitted_answer}")
+            
         except Exception as e:
              print(f"Error running agent on task {task_id}: {e}")
              results_log.append({"Task ID": task_id, "Question": question_text, "Submitted Answer": f"AGENT ERROR: {e}"})
@@ -142,28 +240,30 @@ def run_and_submit_all( profile: gr.OAuthProfile | None):
 
 # --- Build Gradio Interface using Blocks ---
 with gr.Blocks() as demo:
-    gr.Markdown("# Basic Agent Evaluation Runner")
+    gr.Markdown("# Hugging Face Agents Course - Final Assignment")
     gr.Markdown(
         """
         **Instructions:**
 
-        1.  Please clone this space, then modify the code to define your agent's logic, the tools, the necessary packages, etc ...
-        2.  Log in to your Hugging Face account using the button below. This uses your HF username for submission.
-        3.  Click 'Run Evaluation & Submit All Answers' to fetch questions, run your agent, submit answers, and see the score.
+        1. Make sure to set your Hugging Face API token in the .env file
+        2. Log in to your Hugging Face account using the button below
+        3. Click 'Run Evaluation & Submit All Answers' to fetch questions, run the agent, and submit answers
 
-        ---
-        **Disclaimers:**
-        Once clicking on the "submit button, it can take quite some time ( this is the time for the agent to go through all the questions).
-        This space provides a basic setup and is intentionally sub-optimal to encourage you to develop your own, more robust solution. For instance for the delay process of the submit button, a solution could be to cache the answers and submit in a seperate action or even to answer the questions in async.
+        This agent uses the smolagents framework with specialized tools for:
+        - Chess analysis
+        - Image analysis
+        - Data file analysis
+        - Code execution
+        - Documentation search
+        
+        The agent includes caching to save results between runs.
         """
     )
 
     gr.LoginButton()
-
     run_button = gr.Button("Run Evaluation & Submit All Answers")
 
     status_output = gr.Textbox(label="Run Status / Submission Result", lines=5, interactive=False)
-    # Removed max_rows=10 from DataFrame constructor
     results_table = gr.DataFrame(label="Questions and Agent Answers", wrap=True)
 
     run_button.click(
@@ -192,5 +292,5 @@ if __name__ == "__main__":
 
     print("-"*(60 + len(" App Starting ")) + "\n")
 
-    print("Launching Gradio Interface for Basic Agent Evaluation...")
+    print("Launching Gradio Interface for the Final Assignment...")
     demo.launch(debug=True, share=False)
