@@ -17,10 +17,36 @@ from agent import SmolAgent
 DEFAULT_API_URL = "https://agents-course-unit4-scoring.hf.space"
 FILES_DIR = "files"
 CACHE_DIR = "cache"
+AGENT_MIND_FILE = "agentmind.md"
 
 # Ensure directories exist
 os.makedirs(FILES_DIR, exist_ok=True)
 os.makedirs(CACHE_DIR, exist_ok=True)
+
+# Track submission statistics
+submission_stats = {
+    "total": 0,
+    "correct": 0,
+    "incorrect": 0,
+    "unknown": 0
+}
+
+def reset_stats():
+    """Reset the submission statistics."""
+    global submission_stats
+    submission_stats = {
+        "total": 0,
+        "correct": 0,
+        "incorrect": 0,
+        "unknown": 0
+    }
+
+def update_agent_mind_display():
+    """Read and return the content of the agent mind file."""
+    if os.path.exists(AGENT_MIND_FILE):
+        with open(AGENT_MIND_FILE, 'r') as f:
+            return f.read()
+    return "Agent mind log not found."
 
 def run_agent_locally():
     """
@@ -85,6 +111,9 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
     Fetches all questions, runs the SmolAgent on them, submits all answers,
     and displays the results.
     """
+    # Reset statistics at the start of a new run
+    reset_stats()
+    
     # --- Determine HF Space Runtime URL and Repo URL ---
     space_id = os.getenv("SPACE_ID") # Get the SPACE_ID for sending link to the code
 
@@ -93,7 +122,7 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
         print(f"User logged in: {username}")
     else:
         print("User not logged in.")
-        return "Please Login to Hugging Face with the button.", None
+        return "Please Login to Hugging Face with the button.", None, update_agent_mind_display()
 
     api_url = DEFAULT_API_URL
     questions_url = f"{api_url}/questions"
@@ -104,13 +133,13 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
         # Get Hugging Face API token from environment variable
         hf_token = os.environ.get("HF_TOKEN")
         if not hf_token:
-            return "Error: Please set your HF_TOKEN in .env file or environment variables.", None
+            return "Error: Please set your HF_TOKEN in .env file or environment variables.", None, update_agent_mind_display()
             
         agent = SmolAgent(hf_token=hf_token, api_url=api_url)
         print("SmolAgent initialized successfully.")
     except Exception as e:
         print(f"Error instantiating agent: {e}")
-        return f"Error initializing agent: {e}", None
+        return f"Error initializing agent: {e}", None, update_agent_mind_display()
         
     # In the case of an app running as a Hugging Face space, this link points toward your codebase
     agent_code = f"https://huggingface.co/spaces/{space_id}/tree/main"
@@ -124,23 +153,24 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
         questions_data = response.json()
         if not questions_data:
              print("Fetched questions list is empty.")
-             return "Fetched questions list is empty or invalid format.", None
+             return "Fetched questions list is empty or invalid format.", None, update_agent_mind_display()
         print(f"Fetched {len(questions_data)} questions.")
     except requests.exceptions.RequestException as e:
         print(f"Error fetching questions: {e}")
-        return f"Error fetching questions: {e}", None
+        return f"Error fetching questions: {e}", None, update_agent_mind_display()
     except requests.exceptions.JSONDecodeError as e:
          print(f"Error decoding JSON response from questions endpoint: {e}")
          print(f"Response text: {response.text[:500]}")
-         return f"Error decoding server response for questions: {e}", None
+         return f"Error decoding server response for questions: {e}", None, update_agent_mind_display()
     except Exception as e:
         print(f"An unexpected error occurred fetching questions: {e}")
-        return f"An unexpected error occurred fetching questions: {e}", None
+        return f"An unexpected error occurred fetching questions: {e}", None, update_agent_mind_display()
 
     # 3. Run your Agent
     results_log = []
     answers_payload = []
     print(f"Running agent on {len(questions_data)} questions...")
+    submission_stats["total"] = len(questions_data)
     
     # Load cache to avoid reprocessing questions
     cache_path = Path(CACHE_DIR) / "answers_cache.json"
@@ -184,10 +214,11 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
         except Exception as e:
              print(f"Error running agent on task {task_id}: {e}")
              results_log.append({"Task ID": task_id, "Question": question_text, "Submitted Answer": f"AGENT ERROR: {e}"})
+             submission_stats["unknown"] += 1
 
     if not answers_payload:
         print("Agent did not produce any answers to submit.")
-        return "Agent did not produce any answers to submit.", pd.DataFrame(results_log)
+        return "Agent did not produce any answers to submit.", pd.DataFrame(results_log), update_agent_mind_display()
 
     # 4. Prepare Submission 
     submission_data = {"username": username.strip(), "agent_code": agent_code, "answers": answers_payload}
@@ -200,16 +231,22 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
         response = requests.post(submit_url, json=submission_data, timeout=60)
         response.raise_for_status()
         result_data = response.json()
+        
+        # Update statistics
+        if "correct_count" in result_data and "total_attempted" in result_data:
+            submission_stats["correct"] = result_data.get("correct_count", 0)
+            submission_stats["incorrect"] = result_data.get("total_attempted", 0) - result_data.get("correct_count", 0)
+            submission_stats["unknown"] = submission_stats["total"] - result_data.get("total_attempted", 0)
+        
         final_status = (
             f"Submission Successful!\n"
             f"User: {result_data.get('username')}\n"
-            f"Overall Score: {result_data.get('score', 'N/A')}% "
-            f"({result_data.get('correct_count', '?')}/{result_data.get('total_attempted', '?')} correct)\n"
             f"Message: {result_data.get('message', 'No message received.')}"
         )
         print("Submission successful.")
         results_df = pd.DataFrame(results_log)
-        return final_status, results_df
+        
+        return final_status, results_df, update_agent_mind_display()
     except requests.exceptions.HTTPError as e:
         error_detail = f"Server responded with status {e.response.status_code}."
         try:
@@ -220,22 +257,26 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
         status_message = f"Submission Failed: {error_detail}"
         print(status_message)
         results_df = pd.DataFrame(results_log)
-        return status_message, results_df
+        
+        return status_message, results_df, update_agent_mind_display()
     except requests.exceptions.Timeout:
         status_message = "Submission Failed: The request timed out."
         print(status_message)
         results_df = pd.DataFrame(results_log)
-        return status_message, results_df
+        
+        return status_message, results_df, update_agent_mind_display()
     except requests.exceptions.RequestException as e:
         status_message = f"Submission Failed: Network error - {e}"
         print(status_message)
         results_df = pd.DataFrame(results_log)
-        return status_message, results_df
+        
+        return status_message, results_df, update_agent_mind_display()
     except Exception as e:
         status_message = f"An unexpected error occurred during submission: {e}"
         print(status_message)
         results_df = pd.DataFrame(results_log)
-        return status_message, results_df
+        
+        return status_message, results_df, update_agent_mind_display()
 
 
 # --- Build Gradio Interface using Blocks ---
@@ -260,15 +301,24 @@ with gr.Blocks() as demo:
         """
     )
 
-    gr.LoginButton()
-    run_button = gr.Button("Run Evaluation & Submit All Answers")
+    with gr.Row():
+        with gr.Column():
+            gr.LoginButton()
+            run_button = gr.Button("Run Evaluation & Submit All Answers", variant="primary")
 
-    status_output = gr.Textbox(label="Run Status / Submission Result", lines=5, interactive=False)
-    results_table = gr.DataFrame(label="Questions and Agent Answers", wrap=True)
+    with gr.Tab("Results"):
+        status_output = gr.Textbox(label="Run Status / Submission Result", lines=5, interactive=False)
+        results_table = gr.DataFrame(label="Questions and Agent Answers", wrap=True)
+    
+    with gr.Tab("Agent Mind"):
+        agent_mind_output = gr.Markdown(
+            "Agent's thoughts will appear here during execution...",
+            label="Agent's Thought Process"
+        )
 
     run_button.click(
         fn=run_and_submit_all,
-        outputs=[status_output, results_table]
+        outputs=[status_output, results_table, agent_mind_output]
     )
 
 if __name__ == "__main__":
