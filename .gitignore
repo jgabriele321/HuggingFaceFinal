@@ -44,4 +44,6 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-samplecode/ 
+samplecode/
+"sample code"/
+sample\ code/ 
