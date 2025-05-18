@@ -32,6 +32,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src
 # Import the SmolAgent class
 from src.agent_adapter import SmolAgent
 
+# Add import for the final answer processor
+from src.final_answer_processor import process_final_answer
+
 # --- Constants ---
 DEFAULT_API_URL = "https://agents-course-unit4-scoring.hf.space"
 FILES_DIR = "files"
@@ -246,32 +249,32 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
     space_id = os.getenv("SPACE_ID") # Get the SPACE_ID for sending link to the code
 
     if profile:
-            username = f"{profile.username}"
+        username = f"{profile.username}"
         print(f"User logged in: {username}")
     else:
         print("User not logged in.")
-            return "Please Login to Hugging Face with the button.", None, update_agent_mind_display()
+        return "Please Login to Hugging Face with the button.", None, update_agent_mind_display()
 
     api_url = DEFAULT_API_URL
     questions_url = f"{api_url}/questions"
     submit_url = f"{api_url}/submit"
 
-        # 1. Instantiate Agent
-        try:
-            # Get Hugging Face API token from environment variable
-            hf_token = os.environ.get("HF_TOKEN")
-            if not hf_token:
-                return "Error: Please set your HF_TOKEN in .env file or environment variables.", None, update_agent_mind_display()
-                
-            agent = SmolAgent(hf_token=hf_token, api_url=api_url)
-            print("SmolAgent initialized successfully.")
+    # 1. Instantiate Agent
+    try:
+        # Get Hugging Face API token from environment variable
+        hf_token = os.environ.get("HF_TOKEN")
+        if not hf_token:
+            return "Error: Please set your HF_TOKEN in .env file or environment variables.", None, update_agent_mind_display()
+            
+        agent = SmolAgent(hf_token=hf_token, api_url=api_url)
+        print("SmolAgent initialized successfully.")
     except Exception as e:
         print(f"Error instantiating agent: {e}")
-            return f"Error initializing agent: {e}", None, update_agent_mind_display()
-            
-        # In the case of an app running as a Hugging Face space, this link points toward your codebase
+        return f"Error initializing agent: {e}", None, update_agent_mind_display()
+        
+    # In the case of an app running as a Hugging Face space, this link points toward your codebase
     agent_code = f"https://huggingface.co/spaces/{space_id}/tree/main"
-        print(f"Agent code URL: {agent_code}")
+    print(f"Agent code URL: {agent_code}")
 
     # 2. Fetch Questions
     print(f"Fetching questions from: {questions_url}")
@@ -280,83 +283,91 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
         response.raise_for_status()
         questions_data = response.json()
         if not questions_data:
-             print("Fetched questions list is empty.")
-                 return "Fetched questions list is empty or invalid format.", None, update_agent_mind_display()
+            print("Fetched questions list is empty.")
+            return "Fetched questions list is empty or invalid format.", None, update_agent_mind_display()
         print(f"Fetched {len(questions_data)} questions.")
     except requests.exceptions.RequestException as e:
         print(f"Error fetching questions: {e}")
-            return f"Error fetching questions: {e}", None, update_agent_mind_display()
+        return f"Error fetching questions: {e}", None, update_agent_mind_display()
     except requests.exceptions.JSONDecodeError as e:
-         print(f"Error decoding JSON response from questions endpoint: {e}")
-         print(f"Response text: {response.text[:500]}")
-             return f"Error decoding server response for questions: {e}", None, update_agent_mind_display()
+        print(f"Error decoding JSON response from questions endpoint: {e}")
+        print(f"Response text: {response.text[:500]}")
+        return f"Error decoding server response for questions: {e}", None, update_agent_mind_display()
     except Exception as e:
         print(f"An unexpected error occurred fetching questions: {e}")
-            return f"An unexpected error occurred fetching questions: {e}", None, update_agent_mind_display()
+        return f"An unexpected error occurred fetching questions: {e}", None, update_agent_mind_display()
 
     # 3. Run your Agent
     results_log = []
     answers_payload = []
     print(f"Running agent on {len(questions_data)} questions...")
-        submission_stats["total"] = len(questions_data)
-        
-        # Load cache to avoid reprocessing questions
-        cache_path = Path(CACHE_DIR) / "answers_cache.json"
-        cache = {}
-        if cache_path.exists():
-            try:
-                with open(cache_path, "r") as f:
-                    cache = json.load(f)
-                print(f"Loaded {len(cache)} cached answers.")
-            except Exception as e:
-                print(f"Error loading cache: {e}")
-        
+    submission_stats["total"] = len(questions_data)
+    
+    # Load cache to avoid reprocessing questions
+    cache_path = Path(CACHE_DIR) / "answers_cache.json"
+    cache = {}
+    if cache_path.exists():
+        try:
+            with open(cache_path, "r") as f:
+                cache = json.load(f)
+            print(f"Loaded {len(cache)} cached answers.")
+        except Exception as e:
+            print(f"Error loading cache: {e}")
+    
     for item in questions_data:
         task_id = item.get("task_id")
         question_text = item.get("question")
-            file_name = item.get("file_name")  # Get file name if present
-            
+        file_name = item.get("file_name")  # Get file name if present
+        
         if not task_id or question_text is None:
             print(f"Skipping item with missing task_id or question: {item}")
             continue
-                
-            try:
-                # Mark the start of a new question in the agent mind file
-                append_to_agent_mind(f"## Processing Task: {task_id}")
-                append_to_agent_mind(f"**Question:** {question_text}")
-                if file_name:
-                    append_to_agent_mind(f"**File:** {file_name}")
-                
-                print(f"\nProcessing task: {task_id}")
-                print(f"Question: {question_text[:100]}...")
-                if file_name:
-                    print(f"Has associated file: {file_name}")
-                
-                # Process the question with our SmolAgent
-                submitted_answer = agent(question_text, task_id=task_id, file_name=file_name)
-                
+        
+        try:
+            # Mark the start of a new question in the agent mind file
+            append_to_agent_mind(f"## Processing Task: {task_id}")
+            append_to_agent_mind(f"**Question:** {question_text}")
+            if file_name:
+                append_to_agent_mind(f"**File:** {file_name}")
+            
+            print(f"\nProcessing task: {task_id}")
+            print(f"Question: {question_text[:100]}...")
+            if file_name:
+                print(f"Has associated file: {file_name}")
+            
+            # Process the question with our SmolAgent
+            verbose_answer = agent(question_text, task_id=task_id, file_name=file_name)
+            
+            # Apply final answer processing to get concise, exact-match answers
+            submitted_answer = process_final_answer(question_text, verbose_answer)
+            
+            # Log both the verbose and concise answers
+            print(f"Verbose Answer: {verbose_answer[:100]}...")
+            print(f"Final Answer: {submitted_answer}")
+            append_to_agent_mind(f"**Verbose Answer:** {verbose_answer}")
+            append_to_agent_mind(f"**Final Answer:** {submitted_answer}")
+            
             answers_payload.append({"task_id": task_id, "submitted_answer": submitted_answer})
-                results_log.append({
-                    "Task ID": task_id, 
-                    "Question": question_text, 
-                    "File": file_name if file_name else "None",
-                    "Submitted Answer": submitted_answer
-                })
-                
-                print(f"Answer: {submitted_answer}")
-                append_to_agent_mind(f"**Answer:** {submitted_answer}")
-                append_to_agent_mind("---\n")
-                
+            results_log.append({
+                "Task ID": task_id, 
+                "Question": question_text, 
+                "File": file_name if file_name else "None",
+                "Verbose Answer": verbose_answer,
+                "Submitted Answer": submitted_answer
+            })
+            
+            append_to_agent_mind("---\n")
+            
         except Exception as e:
-             print(f"Error running agent on task {task_id}: {e}")
-             results_log.append({"Task ID": task_id, "Question": question_text, "Submitted Answer": f"AGENT ERROR: {e}"})
-                 submission_stats["unknown"] += 1
-                 append_to_agent_mind(f"**Error:** {e}")
-                 append_to_agent_mind("---\n")
+            print(f"Error running agent on task {task_id}: {e}")
+            results_log.append({"Task ID": task_id, "Question": question_text, "Submitted Answer": f"AGENT ERROR: {e}"})
+            submission_stats["unknown"] += 1
+            append_to_agent_mind(f"**Error:** {e}")
+            append_to_agent_mind("---\n")
 
     if not answers_payload:
         print("Agent did not produce any answers to submit.")
-            return "Agent did not produce any answers to submit.", pd.DataFrame(results_log), update_agent_mind_display()
+        return "Agent did not produce any answers to submit.", pd.DataFrame(results_log), update_agent_mind_display()
 
     # 4. Prepare Submission 
     submission_data = {"username": username.strip(), "agent_code": agent_code, "answers": answers_payload}
@@ -369,29 +380,29 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
         response = requests.post(submit_url, json=submission_data, timeout=60)
         response.raise_for_status()
         result_data = response.json()
-            
-            # Update statistics
-            if "correct_count" in result_data and "total_attempted" in result_data:
-                submission_stats["correct"] = result_data.get("correct_count", 0)
-                submission_stats["incorrect"] = result_data.get("total_attempted", 0) - result_data.get("correct_count", 0)
-                submission_stats["unknown"] = submission_stats["total"] - result_data.get("total_attempted", 0)
-            
+        
+        # Update statistics
+        if "correct_count" in result_data and "total_attempted" in result_data:
+            submission_stats["correct"] = result_data.get("correct_count", 0)
+            submission_stats["incorrect"] = result_data.get("total_attempted", 0) - result_data.get("correct_count", 0)
+            submission_stats["unknown"] = submission_stats["total"] - result_data.get("total_attempted", 0)
+        
         final_status = (
             f"Submission Successful!\n"
             f"User: {result_data.get('username')}\n"
             f"Message: {result_data.get('message', 'No message received.')}"
         )
         print("Submission successful.")
-            append_to_agent_mind(f"### Submission Results:\n{final_status}\n\n")
-            append_to_agent_mind(f"- Correct: {submission_stats['correct']}")
-            append_to_agent_mind(f"- Incorrect: {submission_stats['incorrect']}")
-            append_to_agent_mind(f"- Unknown: {submission_stats['unknown']}")
-            append_to_agent_mind(f"- Total: {submission_stats['total']}")
-            append_to_agent_mind("=== End of Run ===\n\n")
-            
+        append_to_agent_mind(f"### Submission Results:\n{final_status}\n\n")
+        append_to_agent_mind(f"- Correct: {submission_stats['correct']}")
+        append_to_agent_mind(f"- Incorrect: {submission_stats['incorrect']}")
+        append_to_agent_mind(f"- Unknown: {submission_stats['unknown']}")
+        append_to_agent_mind(f"- Total: {submission_stats['total']}")
+        append_to_agent_mind("=== End of Run ===\n\n")
+        
         results_df = pd.DataFrame(results_log)
-            
-            return final_status, results_df, update_agent_mind_display()
+        
+        return final_status, results_df, update_agent_mind_display()
     except requests.exceptions.HTTPError as e:
         error_detail = f"Server responded with status {e.response.status_code}."
         try:
@@ -401,39 +412,39 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
             error_detail += f" Response: {e.response.text[:500]}"
         status_message = f"Submission Failed: {error_detail}"
         print(status_message)
-            append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
-            append_to_agent_mind("=== End of Run ===\n\n")
-            
+        append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
+        append_to_agent_mind("=== End of Run ===\n\n")
+        
         results_df = pd.DataFrame(results_log)
-            
-            return status_message, results_df, update_agent_mind_display()
+        
+        return status_message, results_df, update_agent_mind_display()
     except requests.exceptions.Timeout:
         status_message = "Submission Failed: The request timed out."
         print(status_message)
-            append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
-            append_to_agent_mind("=== End of Run ===\n\n")
-            
+        append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
+        append_to_agent_mind("=== End of Run ===\n\n")
+        
         results_df = pd.DataFrame(results_log)
-            
-            return status_message, results_df, update_agent_mind_display()
+        
+        return status_message, results_df, update_agent_mind_display()
     except requests.exceptions.RequestException as e:
         status_message = f"Submission Failed: Network error - {e}"
         print(status_message)
-            append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
-            append_to_agent_mind("=== End of Run ===\n\n")
-            
+        append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
+        append_to_agent_mind("=== End of Run ===\n\n")
+        
         results_df = pd.DataFrame(results_log)
-            
-            return status_message, results_df, update_agent_mind_display()
+        
+        return status_message, results_df, update_agent_mind_display()
     except Exception as e:
         status_message = f"An unexpected error occurred during submission: {e}"
         print(status_message)
-            append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
-            append_to_agent_mind("=== End of Run ===\n\n")
-            
+        append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
+        append_to_agent_mind("=== End of Run ===\n\n")
+        
         results_df = pd.DataFrame(results_log)
-            
-            return status_message, results_df, update_agent_mind_display()
+        
+        return status_message, results_df, update_agent_mind_display()
 
 
 # --- Build Gradio Interface using Blocks ---
@@ -467,13 +478,13 @@ with gr.Blocks() as demo:
 
     with gr.Row():
         with gr.Column():
-    gr.LoginButton()
+            gr.LoginButton()
             run_button = gr.Button("Run Evaluation & Submit All Answers", variant="primary")
             clear_mind_button = gr.Button("Clear Agent Mind Log", variant="secondary")
 
     with gr.Tab("Results"):
-    status_output = gr.Textbox(label="Run Status / Submission Result", lines=5, interactive=False)
-    results_table = gr.DataFrame(label="Questions and Agent Answers", wrap=True)
+        status_output = gr.Textbox(label="Run Status / Submission Result", lines=5, interactive=False)
+        results_table = gr.DataFrame(label="Questions and Agent Answers", wrap=True)
     
     with gr.Tab("Agent Mind"):
         agent_mind_output = gr.Markdown(
@@ -505,7 +516,7 @@ with gr.Blocks() as demo:
 if __name__ == "__main__":
     # Capture app startup info in agent mind
     with capture_stdout():
-    print("\n" + "-"*30 + " App Starting " + "-"*30)
+        print("\n" + "-"*30 + " App Starting " + "-"*30)
         
         # Add timestamp to agent mind
         start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -518,26 +529,26 @@ if __name__ == "__main__":
     if space_host_startup:
         print(f"✅ SPACE_HOST found: {space_host_startup}")
         print(f"   Runtime URL should be: https://{space_host_startup}.hf.space")
-            append_to_agent_mind(f"SPACE_HOST: {space_host_startup}")
-            append_to_agent_mind(f"Runtime URL: https://{space_host_startup}.hf.space")
+        append_to_agent_mind(f"SPACE_HOST: {space_host_startup}")
+        append_to_agent_mind(f"Runtime URL: https://{space_host_startup}.hf.space")
     else:
         print("ℹ️  SPACE_HOST environment variable not found (running locally?).")
-            append_to_agent_mind("Running locally (no SPACE_HOST found)")
+        append_to_agent_mind("Running locally (no SPACE_HOST found)")
 
     if space_id_startup: # Print repo URLs if SPACE_ID is found
         print(f"✅ SPACE_ID found: {space_id_startup}")
         print(f"   Repo URL: https://huggingface.co/spaces/{space_id_startup}")
         print(f"   Repo Tree URL: https://huggingface.co/spaces/{space_id_startup}/tree/main")
-            append_to_agent_mind(f"SPACE_ID: {space_id_startup}")
-            append_to_agent_mind(f"Repo URL: https://huggingface.co/spaces/{space_id_startup}")
+        append_to_agent_mind(f"SPACE_ID: {space_id_startup}")
+        append_to_agent_mind(f"Repo URL: https://huggingface.co/spaces/{space_id_startup}")
     else:
         print("ℹ️  SPACE_ID environment variable not found (running locally?). Repo URL cannot be determined.")
 
     print("-"*(60 + len(" App Starting ")) + "\n")
-        append_to_agent_mind("---\n\n")
+    append_to_agent_mind("---\n\n")
 
-        print("Launching Gradio Interface for the Final Assignment...")
-        append_to_agent_mind("Gradio Interface launched")
+    print("Launching Gradio Interface for the Final Assignment...")
+    append_to_agent_mind("Gradio Interface launched")
 
     # Launch the application
     demo.launch(debug=True, share=False)
