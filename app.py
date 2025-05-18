@@ -242,19 +242,19 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
         # Reset statistics at the start of a new run
         reset_stats()
         
-        # --- Determine HF Space Runtime URL and Repo URL ---
-        space_id = os.getenv("SPACE_ID") # Get the SPACE_ID for sending link to the code
+    # --- Determine HF Space Runtime URL and Repo URL ---
+    space_id = os.getenv("SPACE_ID") # Get the SPACE_ID for sending link to the code
 
-        if profile:
+    if profile:
             username = f"{profile.username}"
-            print(f"User logged in: {username}")
-        else:
-            print("User not logged in.")
+        print(f"User logged in: {username}")
+    else:
+        print("User not logged in.")
             return "Please Login to Hugging Face with the button.", None, update_agent_mind_display()
 
-        api_url = DEFAULT_API_URL
-        questions_url = f"{api_url}/questions"
-        submit_url = f"{api_url}/submit"
+    api_url = DEFAULT_API_URL
+    questions_url = f"{api_url}/questions"
+    submit_url = f"{api_url}/submit"
 
         # 1. Instantiate Agent
         try:
@@ -265,39 +265,39 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
                 
             agent = SmolAgent(hf_token=hf_token, api_url=api_url)
             print("SmolAgent initialized successfully.")
-        except Exception as e:
-            print(f"Error instantiating agent: {e}")
+    except Exception as e:
+        print(f"Error instantiating agent: {e}")
             return f"Error initializing agent: {e}", None, update_agent_mind_display()
             
         # In the case of an app running as a Hugging Face space, this link points toward your codebase
-        agent_code = f"https://huggingface.co/spaces/{space_id}/tree/main"
+    agent_code = f"https://huggingface.co/spaces/{space_id}/tree/main"
         print(f"Agent code URL: {agent_code}")
 
-        # 2. Fetch Questions
-        print(f"Fetching questions from: {questions_url}")
-        try:
-            response = requests.get(questions_url, timeout=15)
-            response.raise_for_status()
-            questions_data = response.json()
-            if not questions_data:
-                 print("Fetched questions list is empty.")
+    # 2. Fetch Questions
+    print(f"Fetching questions from: {questions_url}")
+    try:
+        response = requests.get(questions_url, timeout=15)
+        response.raise_for_status()
+        questions_data = response.json()
+        if not questions_data:
+             print("Fetched questions list is empty.")
                  return "Fetched questions list is empty or invalid format.", None, update_agent_mind_display()
-            print(f"Fetched {len(questions_data)} questions.")
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching questions: {e}")
+        print(f"Fetched {len(questions_data)} questions.")
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching questions: {e}")
             return f"Error fetching questions: {e}", None, update_agent_mind_display()
-        except requests.exceptions.JSONDecodeError as e:
-             print(f"Error decoding JSON response from questions endpoint: {e}")
-             print(f"Response text: {response.text[:500]}")
+    except requests.exceptions.JSONDecodeError as e:
+         print(f"Error decoding JSON response from questions endpoint: {e}")
+         print(f"Response text: {response.text[:500]}")
              return f"Error decoding server response for questions: {e}", None, update_agent_mind_display()
-        except Exception as e:
-            print(f"An unexpected error occurred fetching questions: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred fetching questions: {e}")
             return f"An unexpected error occurred fetching questions: {e}", None, update_agent_mind_display()
 
-        # 3. Run your Agent
-        results_log = []
-        answers_payload = []
-        print(f"Running agent on {len(questions_data)} questions...")
+    # 3. Run your Agent
+    results_log = []
+    answers_payload = []
+    print(f"Running agent on {len(questions_data)} questions...")
         submission_stats["total"] = len(questions_data)
         
         # Load cache to avoid reprocessing questions
@@ -311,14 +311,14 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
             except Exception as e:
                 print(f"Error loading cache: {e}")
         
-        for item in questions_data:
-            task_id = item.get("task_id")
-            question_text = item.get("question")
+    for item in questions_data:
+        task_id = item.get("task_id")
+        question_text = item.get("question")
             file_name = item.get("file_name")  # Get file name if present
             
-            if not task_id or question_text is None:
-                print(f"Skipping item with missing task_id or question: {item}")
-                continue
+        if not task_id or question_text is None:
+            print(f"Skipping item with missing task_id or question: {item}")
+            continue
                 
             try:
                 # Mark the start of a new question in the agent mind file
@@ -335,7 +335,7 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
                 # Process the question with our SmolAgent
                 submitted_answer = agent(question_text, task_id=task_id, file_name=file_name)
                 
-                answers_payload.append({"task_id": task_id, "submitted_answer": submitted_answer})
+            answers_payload.append({"task_id": task_id, "submitted_answer": submitted_answer})
                 results_log.append({
                     "Task ID": task_id, 
                     "Question": question_text, 
@@ -347,28 +347,28 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
                 append_to_agent_mind(f"**Answer:** {submitted_answer}")
                 append_to_agent_mind("---\n")
                 
-            except Exception as e:
-                 print(f"Error running agent on task {task_id}: {e}")
-                 results_log.append({"Task ID": task_id, "Question": question_text, "Submitted Answer": f"AGENT ERROR: {e}"})
+        except Exception as e:
+             print(f"Error running agent on task {task_id}: {e}")
+             results_log.append({"Task ID": task_id, "Question": question_text, "Submitted Answer": f"AGENT ERROR: {e}"})
                  submission_stats["unknown"] += 1
                  append_to_agent_mind(f"**Error:** {e}")
                  append_to_agent_mind("---\n")
 
-        if not answers_payload:
-            print("Agent did not produce any answers to submit.")
+    if not answers_payload:
+        print("Agent did not produce any answers to submit.")
             return "Agent did not produce any answers to submit.", pd.DataFrame(results_log), update_agent_mind_display()
 
-        # 4. Prepare Submission 
-        submission_data = {"username": username.strip(), "agent_code": agent_code, "answers": answers_payload}
-        status_update = f"Agent finished. Submitting {len(answers_payload)} answers for user '{username}'..."
-        print(status_update)
+    # 4. Prepare Submission 
+    submission_data = {"username": username.strip(), "agent_code": agent_code, "answers": answers_payload}
+    status_update = f"Agent finished. Submitting {len(answers_payload)} answers for user '{username}'..."
+    print(status_update)
 
-        # 5. Submit
-        print(f"Submitting {len(answers_payload)} answers to: {submit_url}")
-        try:
-            response = requests.post(submit_url, json=submission_data, timeout=60)
-            response.raise_for_status()
-            result_data = response.json()
+    # 5. Submit
+    print(f"Submitting {len(answers_payload)} answers to: {submit_url}")
+    try:
+        response = requests.post(submit_url, json=submission_data, timeout=60)
+        response.raise_for_status()
+        result_data = response.json()
             
             # Update statistics
             if "correct_count" in result_data and "total_attempted" in result_data:
@@ -376,12 +376,12 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
                 submission_stats["incorrect"] = result_data.get("total_attempted", 0) - result_data.get("correct_count", 0)
                 submission_stats["unknown"] = submission_stats["total"] - result_data.get("total_attempted", 0)
             
-            final_status = (
-                f"Submission Successful!\n"
-                f"User: {result_data.get('username')}\n"
-                f"Message: {result_data.get('message', 'No message received.')}"
-            )
-            print("Submission successful.")
+        final_status = (
+            f"Submission Successful!\n"
+            f"User: {result_data.get('username')}\n"
+            f"Message: {result_data.get('message', 'No message received.')}"
+        )
+        print("Submission successful.")
             append_to_agent_mind(f"### Submission Results:\n{final_status}\n\n")
             append_to_agent_mind(f"- Correct: {submission_stats['correct']}")
             append_to_agent_mind(f"- Incorrect: {submission_stats['incorrect']}")
@@ -389,49 +389,49 @@ def run_and_submit_all(profile: gr.OAuthProfile | None):
             append_to_agent_mind(f"- Total: {submission_stats['total']}")
             append_to_agent_mind("=== End of Run ===\n\n")
             
-            results_df = pd.DataFrame(results_log)
+        results_df = pd.DataFrame(results_log)
             
             return final_status, results_df, update_agent_mind_display()
-        except requests.exceptions.HTTPError as e:
-            error_detail = f"Server responded with status {e.response.status_code}."
-            try:
-                error_json = e.response.json()
-                error_detail += f" Detail: {error_json.get('detail', e.response.text)}"
-            except requests.exceptions.JSONDecodeError:
-                error_detail += f" Response: {e.response.text[:500]}"
-            status_message = f"Submission Failed: {error_detail}"
-            print(status_message)
+    except requests.exceptions.HTTPError as e:
+        error_detail = f"Server responded with status {e.response.status_code}."
+        try:
+            error_json = e.response.json()
+            error_detail += f" Detail: {error_json.get('detail', e.response.text)}"
+        except requests.exceptions.JSONDecodeError:
+            error_detail += f" Response: {e.response.text[:500]}"
+        status_message = f"Submission Failed: {error_detail}"
+        print(status_message)
             append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
             append_to_agent_mind("=== End of Run ===\n\n")
             
-            results_df = pd.DataFrame(results_log)
+        results_df = pd.DataFrame(results_log)
             
             return status_message, results_df, update_agent_mind_display()
-        except requests.exceptions.Timeout:
-            status_message = "Submission Failed: The request timed out."
-            print(status_message)
+    except requests.exceptions.Timeout:
+        status_message = "Submission Failed: The request timed out."
+        print(status_message)
             append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
             append_to_agent_mind("=== End of Run ===\n\n")
             
-            results_df = pd.DataFrame(results_log)
+        results_df = pd.DataFrame(results_log)
             
             return status_message, results_df, update_agent_mind_display()
-        except requests.exceptions.RequestException as e:
-            status_message = f"Submission Failed: Network error - {e}"
-            print(status_message)
+    except requests.exceptions.RequestException as e:
+        status_message = f"Submission Failed: Network error - {e}"
+        print(status_message)
             append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
             append_to_agent_mind("=== End of Run ===\n\n")
             
-            results_df = pd.DataFrame(results_log)
+        results_df = pd.DataFrame(results_log)
             
             return status_message, results_df, update_agent_mind_display()
-        except Exception as e:
-            status_message = f"An unexpected error occurred during submission: {e}"
-            print(status_message)
+    except Exception as e:
+        status_message = f"An unexpected error occurred during submission: {e}"
+        print(status_message)
             append_to_agent_mind(f"### Submission Error:\n{status_message}\n\n")
             append_to_agent_mind("=== End of Run ===\n\n")
             
-            results_df = pd.DataFrame(results_log)
+        results_df = pd.DataFrame(results_log)
             
             return status_message, results_df, update_agent_mind_display()
 
@@ -467,13 +467,13 @@ with gr.Blocks() as demo:
 
     with gr.Row():
         with gr.Column():
-            gr.LoginButton()
+    gr.LoginButton()
             run_button = gr.Button("Run Evaluation & Submit All Answers", variant="primary")
             clear_mind_button = gr.Button("Clear Agent Mind Log", variant="secondary")
 
     with gr.Tab("Results"):
-        status_output = gr.Textbox(label="Run Status / Submission Result", lines=5, interactive=False)
-        results_table = gr.DataFrame(label="Questions and Agent Answers", wrap=True)
+    status_output = gr.Textbox(label="Run Status / Submission Result", lines=5, interactive=False)
+    results_table = gr.DataFrame(label="Questions and Agent Answers", wrap=True)
     
     with gr.Tab("Agent Mind"):
         agent_mind_output = gr.Markdown(
@@ -505,39 +505,39 @@ with gr.Blocks() as demo:
 if __name__ == "__main__":
     # Capture app startup info in agent mind
     with capture_stdout():
-        print("\n" + "-"*30 + " App Starting " + "-"*30)
+    print("\n" + "-"*30 + " App Starting " + "-"*30)
         
         # Add timestamp to agent mind
         start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         append_to_agent_mind(f"# App Started at {start_time}")
         
-        # Check for SPACE_HOST and SPACE_ID at startup for information
-        space_host_startup = os.getenv("SPACE_HOST")
-        space_id_startup = os.getenv("SPACE_ID") # Get SPACE_ID at startup
+    # Check for SPACE_HOST and SPACE_ID at startup for information
+    space_host_startup = os.getenv("SPACE_HOST")
+    space_id_startup = os.getenv("SPACE_ID") # Get SPACE_ID at startup
 
-        if space_host_startup:
-            print(f"✅ SPACE_HOST found: {space_host_startup}")
-            print(f"   Runtime URL should be: https://{space_host_startup}.hf.space")
+    if space_host_startup:
+        print(f"✅ SPACE_HOST found: {space_host_startup}")
+        print(f"   Runtime URL should be: https://{space_host_startup}.hf.space")
             append_to_agent_mind(f"SPACE_HOST: {space_host_startup}")
             append_to_agent_mind(f"Runtime URL: https://{space_host_startup}.hf.space")
-        else:
-            print("ℹ️  SPACE_HOST environment variable not found (running locally?).")
+    else:
+        print("ℹ️  SPACE_HOST environment variable not found (running locally?).")
             append_to_agent_mind("Running locally (no SPACE_HOST found)")
 
-        if space_id_startup: # Print repo URLs if SPACE_ID is found
-            print(f"✅ SPACE_ID found: {space_id_startup}")
-            print(f"   Repo URL: https://huggingface.co/spaces/{space_id_startup}")
-            print(f"   Repo Tree URL: https://huggingface.co/spaces/{space_id_startup}/tree/main")
+    if space_id_startup: # Print repo URLs if SPACE_ID is found
+        print(f"✅ SPACE_ID found: {space_id_startup}")
+        print(f"   Repo URL: https://huggingface.co/spaces/{space_id_startup}")
+        print(f"   Repo Tree URL: https://huggingface.co/spaces/{space_id_startup}/tree/main")
             append_to_agent_mind(f"SPACE_ID: {space_id_startup}")
             append_to_agent_mind(f"Repo URL: https://huggingface.co/spaces/{space_id_startup}")
-        else:
-            print("ℹ️  SPACE_ID environment variable not found (running locally?). Repo URL cannot be determined.")
+    else:
+        print("ℹ️  SPACE_ID environment variable not found (running locally?). Repo URL cannot be determined.")
 
-        print("-"*(60 + len(" App Starting ")) + "\n")
+    print("-"*(60 + len(" App Starting ")) + "\n")
         append_to_agent_mind("---\n\n")
 
         print("Launching Gradio Interface for the Final Assignment...")
         append_to_agent_mind("Gradio Interface launched")
-        
+
     # Launch the application
     demo.launch(debug=True, share=False)

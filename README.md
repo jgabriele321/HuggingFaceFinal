@@ -16,6 +16,44 @@ hf_oauth_expiration_minutes: 480
 
 This project implements an intelligent agent using the smolagents framework for the Hugging Face Agents Course final assignment. The agent is designed to answer a variety of questions, including those requiring analysis of images, chess positions, data files, and more.
 
+## Repository Structure
+
+The repository is organized into the following directories:
+
+- `src/`: Core agent implementations
+  - `agent.py`: The current active agent implementation
+  - `openrouter_agent.py`: OpenRouter API-based implementation
+  - `openai_agent.py`: OpenAI API-based implementation
+  - `concise_agent.py`: Implementation focused on producing concise, exact answers
+  - `agent_adapter.py`: Compatibility layer for the original interface
+
+- `tests/`: Testing utilities
+  - `test_implementations.py`: Tests for different agent implementations
+  - `test_model.py`: Tests model availability and configurations
+  - `test_hf_client.py`: Tests Hugging Face client connectivity
+
+- `scripts/`: Helper scripts
+  - `update_agent.py`: Script to switch between implementations
+  - `fix_app.py`: Utility to patch app.py if needed
+  - `install.sh`: Installation script
+  - `save_to_github.sh`: GitHub backup utility
+  - `direct_env_checker.py`: Environment variable checker
+  - `clean_root.sh`: Script to clean up redundant files
+
+- `docs/`: Documentation
+  - `agentmind.md`: Detailed agent design and reasoning
+  - `model_troubleshooting.md`: Common model issues and solutions
+  - `reorganization_plan.md`: Repository organization planning
+  - `reorganization_summary.md`: Summary of reorganization changes
+
+- `config/`: Configuration files
+  - `.env`: Environment variables with API keys (not in version control)
+  - `.env.template`: Template for setting up environment variables
+  - `README.md`: Instructions for environment configuration
+
+- `backups/`: Backup files
+  - Contains backup versions of modified files
+
 ## Latest Improvements
 
 - **Model Reliability Enhancements**:
@@ -35,14 +73,67 @@ This project implements an intelligent agent using the smolagents framework for 
 
 ## Setup Instructions
 
-1. Clone this repository
-2. Install dependencies with `pip install -r requirements.txt`
-3. Create a `.env` file in the root directory with your Hugging Face API token:
+1. Clone this repository:
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
    ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Set up environment variables in the config directory:
+   ```bash
+   # Copy the template
+   cp config/.env.template config/.env
+   
+   # Edit the .env file with your API keys
+   nano config/.env
+   ```
+   
+   Required environment variables:
+   ```
+   # Hugging Face API token
    HF_TOKEN=your_huggingface_token_here
+   
+   # API URL for questions and submission
    API_URL=https://agents-course-unit4-scoring.hf.space
+   
+   # OpenRouter API key (for Claude and other models)
+   OPENROUTER_API_KEY=your_openrouter_api_key
    ```
-4. Run the application with `python app.py`
+
+4. Choose your agent implementation:
+   ```bash
+   # Switch to OpenRouter implementation (recommended)
+   python scripts/update_agent.py --implementation openrouter
+   
+   # Or use OpenAI implementation
+   python scripts/update_agent.py --implementation openai
+   ```
+
+5. Run the application:
+   ```bash
+   python app.py
+   ```
+
+## Running Tests
+
+Run all tests with the convenience script:
+```bash
+./run_tests.sh
+```
+
+Or run specific tests:
+```bash
+# Test implementations
+python tests/test_implementations.py
+
+# Test model availability
+python tests/test_model.py
+```
 
 ## Agent Features
 
@@ -173,7 +264,7 @@ python test_implementations.py --openai
 #### OpenRouter Implementation
 
 ```python
-from openrouter_agent import SmolAgent
+from src.openrouter_agent import SmolAgent
 
 # Initialize the agent
 agent = SmolAgent()  # Uses environment variable OPENROUTER_API_KEY
@@ -200,7 +291,7 @@ print(response)
 #### OpenAI Implementation
 
 ```python
-from openai_agent import SmolAgent
+from src.openai_agent import SmolAgent
 
 # Initialize the agent
 agent = SmolAgent()  # Uses environment variable OPENAI_API_KEY

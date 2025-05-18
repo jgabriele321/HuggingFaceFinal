@@ -7,7 +7,11 @@ This script validates both implementations and demonstrates their usage.
 import os
 import time
 import logging
+import sys
 from argparse import ArgumentParser
+
+# Add the parent directory to Python path to allow imports from src
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configure logging
 logging.basicConfig(
@@ -19,7 +23,7 @@ logger = logging.getLogger("SmolAgentTest")
 def test_openrouter_agent():
     """Test the OpenRouter implementation."""
     try:
-        from openrouter_agent import SmolAgent as OpenRouterAgent
+        from src.openrouter_agent import SmolAgent as OpenRouterAgent
         
         # Check if API key exists
         api_key = os.environ.get("OPENROUTER_API_KEY")
@@ -57,7 +61,7 @@ def test_openrouter_agent():
 def test_openai_agent():
     """Test the OpenAI implementation."""
     try:
-        from openai_agent import SmolAgent as OpenAIAgent
+        from src.openai_agent import SmolAgent as OpenAIAgent
         
         # Check if API key exists
         api_key = os.environ.get("OPENAI_API_KEY")

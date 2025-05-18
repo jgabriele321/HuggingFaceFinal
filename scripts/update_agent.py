@@ -10,8 +10,11 @@ import os
 import argparse
 import shutil
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
+
+# Add parent directory to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configure logging
 logging.basicConfig(
@@ -19,6 +22,12 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("UpdateAgent")
+
+# Define paths
+SRC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src')
+OPENROUTER_PATH = os.path.join(SRC_DIR, 'openrouter_agent.py')
+OPENAI_PATH = os.path.join(SRC_DIR, 'openai_agent.py')
+AGENT_PATH = os.path.join(SRC_DIR, 'agent.py')
 
 # Load environment variables from .env file
 try:
@@ -58,61 +67,61 @@ def validate_api_keys():
 def update_with_openrouter(force=False):
     """Update the agent.py file with OpenRouter implementation."""
     # Check if openrouter_agent.py exists
-    if not Path("openrouter_agent.py").exists():
-        logger.error("❌ openrouter_agent.py not found")
+    if not Path(OPENROUTER_PATH).exists():
+        logger.error(f"❌ {OPENROUTER_PATH} not found")
         return False
     
     # Check if agent.py exists
-    if Path("agent.py").exists() and not force:
-        backup_file = "agent.py.bak"
+    if Path(AGENT_PATH).exists() and not force:
+        backup_file = f"{AGENT_PATH}.bak"
         logger.info(f"Creating backup of existing agent.py to {backup_file}")
-        shutil.copy2("agent.py", backup_file)
+        shutil.copy2(AGENT_PATH, backup_file)
     
     # Copy openrouter_agent.py to agent.py
     try:
         # Read openrouter_agent.py
-        with open("openrouter_agent.py", "r") as f:
+        with open(OPENROUTER_PATH, "r") as f:
             content = f.read()
         
         # Write to agent.py with module docstring modification
-        with open("agent.py", "w") as f:
+        with open(AGENT_PATH, "w") as f:
             f.write('"""\nSmolAgent Implementation using OpenRouter API\n\nThis is an auto-generated file. Do not edit directly.\n"""\n\n')
             f.write(content)
         
-        logger.info("✅ Successfully updated agent.py with OpenRouter implementation")
+        logger.info(f"✅ Successfully updated {AGENT_PATH} with OpenRouter implementation")
         return True
     except Exception as e:
-        logger.error(f"❌ Error updating agent.py: {str(e)}")
+        logger.error(f"❌ Error updating {AGENT_PATH}: {str(e)}")
         return False
 
 def update_with_openai(force=False):
     """Update the agent.py file with OpenAI implementation."""
     # Check if openai_agent.py exists
-    if not Path("openai_agent.py").exists():
-        logger.error("❌ openai_agent.py not found")
+    if not Path(OPENAI_PATH).exists():
+        logger.error(f"❌ {OPENAI_PATH} not found")
         return False
     
     # Check if agent.py exists
-    if Path("agent.py").exists() and not force:
-        backup_file = "agent.py.bak"
+    if Path(AGENT_PATH).exists() and not force:
+        backup_file = f"{AGENT_PATH}.bak"
         logger.info(f"Creating backup of existing agent.py to {backup_file}")
-        shutil.copy2("agent.py", backup_file)
+        shutil.copy2(AGENT_PATH, backup_file)
     
     # Copy openai_agent.py to agent.py
     try:
         # Read openai_agent.py
-        with open("openai_agent.py", "r") as f:
+        with open(OPENAI_PATH, "r") as f:
             content = f.read()
         
         # Write to agent.py with module docstring modification
-        with open("agent.py", "w") as f:
+        with open(AGENT_PATH, "w") as f:
             f.write('"""\nSmolAgent Implementation using OpenAI API\n\nThis is an auto-generated file. Do not edit directly.\n"""\n\n')
             f.write(content)
         
-        logger.info("✅ Successfully updated agent.py with OpenAI implementation")
+        logger.info(f"✅ Successfully updated {AGENT_PATH} with OpenAI implementation")
         return True
     except Exception as e:
-        logger.error(f"❌ Error updating agent.py: {str(e)}")
+        logger.error(f"❌ Error updating {AGENT_PATH}: {str(e)}")
         return False
 
 def update_env_file(openrouter_key=None, openai_key=None):

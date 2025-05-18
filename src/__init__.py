@@ -1,0 +1,3 @@
+"""
+Core agent implementation package.
+""" 
