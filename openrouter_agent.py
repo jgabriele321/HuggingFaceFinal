@@ -1,9 +1,3 @@
-"""
-SmolAgent Implementation using OpenRouter API
-
-This is an auto-generated file. Do not edit directly.
-"""
-
 import os
 import json
 import requests

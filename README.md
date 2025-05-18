@@ -16,6 +16,23 @@ hf_oauth_expiration_minutes: 480
 
 This project implements an intelligent agent using the smolagents framework for the Hugging Face Agents Course final assignment. The agent is designed to answer a variety of questions, including those requiring analysis of images, chess positions, data files, and more.
 
+## Latest Improvements
+
+- **Model Reliability Enhancements**:
+  - 🔄 Robust model loading with multiple fallbacks (Llama 3, Mistral, Claude, Gemma)
+  - 🔁 Automatic retry mechanism for model failures
+  - 🚨 Detailed error reporting and logging
+  
+- **Web Integration**:
+  - 🌐 Web search capability for factual questions
+  - 🎬 YouTube video transcript extraction and analysis
+  - 📚 Wikipedia integration for entity-related questions
+  
+- **File Processing**:
+  - 📊 Enhanced file type detection and processing
+  - 🔍 Specialized handlers for different file formats
+  - ✅ File integrity verification during download
+
 ## Setup Instructions
 
 1. Clone this repository
@@ -36,6 +53,8 @@ The agent uses a modular architecture with the following components:
   - `analyze_image`: For general image analysis
   - `analyze_chess_position`: For chess-specific image analysis
   - `analyze_data_file`: For CSV, JSON, and text files
+  - `web_search`: For retrieving factual information from the web
+  - `analyze_youtube_video`: For extracting and analyzing video content
   - `execute_code`: For running code snippets safely
   - `search_documentation`: For retrieving relevant information
 - **Question Processing**:
@@ -45,6 +64,7 @@ The agent uses a modular architecture with the following components:
 - **File Handling**:
   - Automatic download of question-related files
   - Organized storage in the `files` directory
+  - Robust error handling with retry logic
 - **Caching**:
   - Results are cached to avoid recomputing answers
   - Cache is maintained between runs in the `cache` directory
@@ -53,9 +73,21 @@ The agent uses a modular architecture with the following components:
 
 1. The app fetches questions from the API endpoint
 2. For each question, it detects the question type and downloads any associated files
-3. It then processes the question with the appropriate tools
-4. The answer is formatted according to the question type and cached
-5. All answers are submitted back to the API for scoring
+3. For factual questions, it may use web search to supplement information
+4. It then processes the question with the appropriate tools
+5. If model errors occur, it uses a fallback strategy with multiple retries
+6. The answer is formatted according to the question type and cached
+7. All answers are submitted back to the API for scoring
+
+## Error Handling and Reliability
+
+The agent implements comprehensive error handling:
+
+- Multiple model fallbacks if primary models fail
+- Automatic retries for transient errors
+- Specialized handling for different question types
+- Graceful degradation when services are unavailable
+- Detailed logging for debugging and analysis
 
 ## Contributing
 
@@ -66,3 +98,152 @@ Feel free to contribute to this project by submitting pull requests or opening i
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+
+# SmolAgent Implementations
+
+This repository contains two robust SmolAgent implementations that bypass Hugging Face model issues by using OpenRouter and OpenAI APIs instead.
+
+## Features
+
+### Common Features (Both Implementations)
+- Robust error handling with retry logic
+- Proper formatting for the CodeAgent parser
+- Type-safe message handling
+- Built-in file analysis without problematic dependencies
+- Auto-detection of response formats (code vs. text)
+
+### OpenRouter Implementation
+- Uses reliable models like Claude 3 Haiku
+- Configurable model selection
+- Compatible with the existing SmolAgent interface
+
+### OpenAI Implementation
+- Uses GPT-3.5-Turbo for cost-effectiveness
+- Maintains compatibility with the smolagents framework
+- Properly processes file information
+
+## Installation
+
+1. Clone the repository
+2. Install the requirements:
+
+```bash
+pip install requests smolagents
+```
+
+3. Set up your API keys:
+
+```bash
+# For OpenRouter
+export OPENROUTER_API_KEY=your_openrouter_api_key
+
+# For OpenAI
+export OPENAI_API_KEY=your_openai_api_key
+```
+
+You can also create a `.env` file in the project root:
+
+```
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENAI_API_KEY=your_openai_api_key
+```
+
+## Usage
+
+### Running the Test Script
+
+Test both implementations:
+
+```bash
+python test_implementations.py
+```
+
+Test only one implementation:
+
+```bash
+# For OpenRouter
+python test_implementations.py --openrouter
+
+# For OpenAI
+python test_implementations.py --openai
+```
+
+### Using in Your Code
+
+#### OpenRouter Implementation
+
+```python
+from openrouter_agent import SmolAgent
+
+# Initialize the agent
+agent = SmolAgent()  # Uses environment variable OPENROUTER_API_KEY
+
+# Or with explicit API key and model
+agent = SmolAgent(
+    openrouter_api_key="your_api_key", 
+    model_id="anthropic/claude-3-haiku"
+)
+
+# Ask a question
+response = agent("What is the capital of France?")
+print(response)
+
+# Code generation
+code = agent("Write a function to calculate the factorial of a number in Python")
+print(code)
+
+# With file analysis
+response = agent("Analyze this Python file", file_path="example.py")
+print(response)
+```
+
+#### OpenAI Implementation
+
+```python
+from openai_agent import SmolAgent
+
+# Initialize the agent
+agent = SmolAgent()  # Uses environment variable OPENAI_API_KEY
+
+# Or with explicit API key and model
+agent = SmolAgent(
+    openai_api_key="your_api_key", 
+    model_id="gpt-3.5-turbo"
+)
+
+# Ask a question
+response = agent("What is the capital of France?")
+print(response)
+
+# Code generation
+code = agent("Write a function to calculate the factorial of a number in Python")
+print(code)
+
+# With file analysis
+response = agent("Analyze this Python file", file_path="example.py")
+print(response)
+```
+
+## Troubleshooting
+
+### API Key Issues
+
+- Ensure your API keys are valid and have not expired
+- Check that the environment variables are properly set
+- Verify network connectivity to the API endpoints
+
+### Model Errors
+
+- Try switching to a different model if you encounter model-specific issues
+- Ensure your API key has access to the requested model
+- Monitor your API usage and quotas
+
+### Integration Problems
+
+- Make sure you have the latest version of `smolagents` installed
+- Check that the dependencies are correctly installed
+- Verify that your Python version is 3.8 or higher
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

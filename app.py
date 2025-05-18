@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import the SmolAgent class
-from agent import SmolAgent
+from agent_adapter import SmolAgent
 
 # --- Constants ---
 DEFAULT_API_URL = "https://agents-course-unit4-scoring.hf.space"
@@ -295,9 +295,16 @@ with gr.Blocks() as demo:
         - Image analysis
         - Data file analysis
         - Code execution
+        - Web search for factual questions
+        - YouTube video analysis
         - Documentation search
         
-        The agent includes caching to save results between runs.
+        **Latest Improvements:**
+        - 🔄 Robust model loading with multiple fallbacks (Llama 3, Mistral, Claude, Gemma)
+        - 🌐 Web search integration for factual questions
+        - 🎬 YouTube video transcript analysis
+        - 📊 Enhanced file type detection and processing
+        - 🛡️ Improved error handling with automatic retries
         """
     )
 

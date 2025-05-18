@@ -1,26 +1,19 @@
-"""
-SmolAgent Implementation using OpenRouter API
-
-This is an auto-generated file. Do not edit directly.
-"""
-
 import os
 import json
 import requests
 import time
 import random
 import logging
-import base64
 import re
 from typing import List, Dict, Any, Optional, Union
 from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger("OpenRouterAgent")
+logger = logging.getLogger("OpenAIAgent")
 
 class ChatMessage:
-    """Message class compatible with OpenRouter API and smolagents."""
+    """Message class compatible with OpenAI API and smolagents."""
     
     def __init__(self, role: str, content: str):
         self.role = role
@@ -32,43 +25,41 @@ class ChatMessage:
     def __str__(self):
         return self.content
 
-class OpenRouterModel:
-    """Model that uses OpenRouter API to access various LLMs."""
+class OpenAIModel:
+    """Model that uses OpenAI API to access various LLMs."""
     
-    def __init__(self, api_key: Optional[str] = None, model_id: str = "anthropic/claude-3-haiku"):
+    def __init__(self, api_key: Optional[str] = None, model_id: str = "gpt-3.5-turbo"):
         """
-        Initialize the OpenRouter model.
+        Initialize the OpenAI model.
         
         Args:
-            api_key: OpenRouter API key (get one at https://openrouter.ai/keys)
-            model_id: Model identifier on OpenRouter
+            api_key: OpenAI API key
+            model_id: Model identifier (default: 'gpt-3.5-turbo')
         """
-        self.api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
+        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
         if not self.api_key:
-            raise ValueError("OpenRouter API key is required. Get one at https://openrouter.ai/keys")
+            raise ValueError("OpenAI API key is required. Get one at https://platform.openai.com/api-keys")
             
         self.model_id = model_id
-        self.base_url = "https://openrouter.ai/api/v1"
-        
-        logger.info(f"Initialized OpenRouterModel with model: {model_id}")
+        logger.info(f"Initialized OpenAIModel with model: {model_id}")
     
     def __call__(self, prompt_or_messages) -> ChatMessage:
-        """Send a request to the OpenRouter API and return the response."""
+        """Send a request to the OpenAI API and return the response."""
         # Ensure proper message format
         messages = self._prepare_messages(prompt_or_messages)
         
-        url = f"{self.base_url}/chat/completions"
+        url = "https://api.openai.com/v1/chat/completions"
         
         headers = {
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://huggingface.co/spaces",  # Helps with quotas
-            "X-Title": "SmolAgent"  # Optional app name
+            "Content-Type": "application/json"
         }
         
         data = {
             "model": self.model_id,
-            "messages": messages
+            "messages": messages,
+            "temperature": 0.7,
+            "max_tokens": 1000
         }
         
         # Add retry logic with exponential backoff
@@ -84,7 +75,7 @@ class OpenRouterModel:
                 return ChatMessage(role="assistant", content=content)
                 
             except requests.exceptions.HTTPError as e:
-                logger.error(f"HTTP error with OpenRouter API (attempt {attempt+1}/{max_retries}): {str(e)}")
+                logger.error(f"HTTP error with OpenAI API (attempt {attempt+1}/{max_retries}): {str(e)}")
                 if e.response.status_code in [429, 500, 502, 503, 504]:
                     # Retryable errors (rate limits, server errors)
                     backoff = (2 ** attempt) + random.uniform(0, 1)
@@ -123,7 +114,7 @@ class OpenRouterModel:
                     )
     
     def _prepare_messages(self, prompt_or_messages):
-        """Ensure proper message format for OpenRouter API."""
+        """Ensure proper message format for OpenAI API."""
         # Handle different input types
         if isinstance(prompt_or_messages, str):
             # Single string prompt
@@ -169,7 +160,7 @@ class OpenRouterModel:
         else:
             content = str(response)
         
-        # Check if this appears to be a request for code or a chess-related question
+        # Check for code, chess, or other specialized queries
         prompt_str = str(prompt).lower()
         
         # Special handling for chess moves
@@ -280,22 +271,22 @@ class FileHandler:
 
 class SmolAgent:
     """
-    A robust agent using OpenRouter for reliable model access.
+    A robust agent using OpenAI for reliable model access.
     """
     
-    def __init__(self, openrouter_api_key: Optional[str] = None, model_id: str = "anthropic/claude-3-haiku"):
+    def __init__(self, openai_api_key: Optional[str] = None, model_id: str = "gpt-3.5-turbo"):
         """
         Initialize the SmolAgent.
         
         Args:
-            openrouter_api_key: OpenRouter API key
-            model_id: The model ID to use (default: "anthropic/claude-3-haiku")
+            openai_api_key: OpenAI API key
+            model_id: The model ID to use (default: "gpt-3.5-turbo")
         """
-        self.openrouter_api_key = openrouter_api_key or os.environ.get("OPENROUTER_API_KEY")
+        self.openai_api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         
-        # Initialize model using OpenRouter
-        self.model = OpenRouterModel(
-            api_key=self.openrouter_api_key,
+        # Initialize model using OpenAI
+        self.model = OpenAIModel(
+            api_key=self.openai_api_key,
             model_id=model_id
         )
         
