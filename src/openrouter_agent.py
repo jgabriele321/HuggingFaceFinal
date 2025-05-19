@@ -298,24 +298,59 @@ class SmolAgent:
         
         # Initialize smolagents if available
         try:
-            from smolagents import CodeAgent, PythonInterpreterTool, FinalAnswerTool
+            from smolagents import (
+                CodeAgent, 
+                PythonInterpreterTool, 
+                FinalAnswerTool,
+                DuckDuckGoSearchTool,
+                VisitWebpageTool,
+                SpeechToTextTool
+            )
+            
+            # Import custom YouTube tool
+            try:
+                from src.youtube_tool import get_youtube_tool
+                youtube_tool = get_youtube_tool()
+                has_youtube_tool = True
+            except ImportError:
+                logger.warning("YouTube tool not available")
+                youtube_tool = None
+                has_youtube_tool = False
             
             # Create properly configured Python interpreter with explicit authorized imports
             self.authorized_imports = [
                 "os", "json", "re", "math", "time", "pathlib", "random",
                 "collections", "itertools", "functools", "string", "datetime",
-                "base64", "io", "PIL", "requests"
+                "base64", "io", "PIL", "requests", "bs4", "html", "xml", "csv",
+                "urllib"
             ]
             
+            # Create tool instances
             python_tool = PythonInterpreterTool(
                 authorized_imports=self.authorized_imports
             )
             
+            # Web search tool
+            search_tool = DuckDuckGoSearchTool(max_results=5)
+            
+            # Web page visit tool for HTML content
+            webpage_tool = VisitWebpageTool()
+            
+            # Audio transcription tool
+            audio_tool = SpeechToTextTool()
+            
             # Define available tools
             self.tools = [
                 python_tool,
-                FinalAnswerTool()
+                FinalAnswerTool(),
+                search_tool,
+                webpage_tool,
+                audio_tool
             ]
+            
+            # Add YouTube tool if available
+            if has_youtube_tool and youtube_tool:
+                self.tools.append(youtube_tool)
             
             # Generate tool documentation for agent prompt
             tool_docs = self._generate_tool_documentation()
@@ -344,12 +379,24 @@ class SmolAgent:
         Returns:
             Dictionary mapping tool names to descriptions
         """
-        return {
+        registry = {
             "python": "Execute Python code with access to a restricted set of libraries",
             "final_answer": "Submit your final answer when task is complete",
+            "search": "Search the web for information using DuckDuckGo",
+            "webpage": "Visit and extract content from a webpage URL",
+            "audio": "Transcribe speech from audio files",
             "file_reader": "Read the contents of a file at a specified path",
             "validate_tool": "Check if a tool exists and is available for use"
         }
+        
+        # Add YouTube tool if available
+        try:
+            from src.youtube_tool import get_youtube_tool
+            registry["youtube"] = "Extract information from YouTube videos (metadata, transcripts, summaries)"
+        except ImportError:
+            pass
+            
+        return registry
     
     def _generate_tool_documentation(self):
         """
@@ -512,15 +559,51 @@ class SmolAgent:
         Returns:
             Name of selected tool or None if no specific tool is appropriate
         """
+        question_lower = question.lower()
+        
+        # For YouTube-related queries
+        if any(term in question_lower for term in [
+            "youtube video", "youtube channel", "youtube transcript",
+            "video summary", "youtube.com/watch", "youtu.be"
+        ]) or "youtube.com" in question_lower or "youtu.be" in question_lower:
+            try:
+                # Check if the tool is available before selecting it
+                from src.youtube_tool import get_youtube_tool
+                return "youtube"
+            except ImportError:
+                # Fall back to web search if YouTube tool not available
+                return "search"
+        
+        # For web search related questions
+        if any(term in question_lower for term in [
+            "search for", "look up", "find information", "search the web",
+            "what's the latest", "current news", "recent events"
+        ]):
+            return "search"
+            
+        # For webpage content extraction
+        if any(term in question_lower for term in [
+            "visit website", "open url", "webpage content", "website content",
+            "extract from site", "scrape", "html", "webpage at"
+        ]) or ("http" in question_lower and any(ext in question_lower for ext in [".com", ".org", ".net", ".gov"])):
+            return "webpage"
+            
+        # For audio transcription
+        if any(term in question_lower for term in [
+            "transcribe", "speech to text", "audio file", "voice recording",
+            "what does this audio say", "convert speech", "speech recognition"
+        ]):
+            return "audio"
+        
         # For code-related questions, use python tool
-        if any(term in question.lower() for term in [
+        if any(term in question_lower for term in [
             "code", "function", "write a", "implement", "program", 
-            "script", "algorithm", "compute", "calculate"
+            "script", "algorithm", "compute", "calculate", "parse"
         ]):
             return "python"
             
         # For questions that seek a definitive answer, use final_answer
-        if any(term in question.lower() for term in [
+        if any(term in question_lower for term in [
             "what is", "who is", "when did", "where is", "how many",
             "why does", "explain", "define", "describe"
         ]):
