@@ -126,28 +126,11 @@ class EnhancedAgent:
         
     def _initialize_model(self) -> Union[HfApiModel, Any]:
         """Initialize the model for the agent."""
-        # Use different API keys and endpoints based on the model
-        if self.model_id.startswith("anthropic/") and self.openrouter_api_key and self.can_use_openai_client:
-            # Use OpenAI client for Claude models
-            import openai
-            client = openai.OpenAI(
-                api_key=self.openrouter_api_key,
-                base_url="https://openrouter.ai/api/v1"
-            )
-            logger.info(f"Using OpenAI client with OpenRouter API for model: {self.model_id}")
-            return client
-                
-        # Otherwise use HfApiModel
-        if "meta-llama" in self.model_id and self.hf_token:
-            # Use Hugging Face token for Llama models
-            model = HfApiModel(api_key=self.hf_token, model_id=self.model_id)
-        elif self.openrouter_api_key:
-            # Use OpenRouter for other models if we have an API key
-            model = HfApiModel(api_key=self.openrouter_api_key, model_id=self.model_id)
-        else:
-            # No authentication for free models
-            model = HfApiModel(model_id=self.model_id)
-            
+        # Force using Llama through HfApiModel
+        model = HfApiModel(
+            model_id="meta-llama/Llama-3.3-70B-Instruct",
+            token=self.hf_token  # Will use token if available, otherwise free tier
+        )
         return model
     
     def _initialize_tools(self) -> List[Tool]:
@@ -302,6 +285,10 @@ DO NOT try to use non-existent functions like wiki(), search(), or answer().
         Returns:
             The processed result
         """
+        # Handle non-string results (e.g., numbers)
+        if not isinstance(result, str):
+            return str(result)
+            
         # Handle empty results
         if not result or result.isspace():
             logger.warning("Empty result from model")
@@ -338,10 +325,10 @@ DO NOT try to use non-existent functions like wiki(), search(), or answer().
             return "3"
 
         # Import the final answer processor
-        from src.final_answer_extractor import process_final_answer
+        from src.final_answer_extractor import extract_final_answer
         
         # Process the final answer
-        processed_result = process_final_answer(original_query, result)
+        processed_result = extract_final_answer(original_query, result)
         
         # Extra handling for special cases where extraction might fail
         if processed_result == "Unable to extract an answer from the model response.":

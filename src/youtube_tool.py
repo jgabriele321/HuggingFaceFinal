@@ -25,16 +25,17 @@ class YouTubeTool(Tool):
     
     inputs = {
         "video_url": {
-            "type": str,
+            "type": "string",
             "description": "URL of the YouTube video to process"
         },
         "action": {
-            "type": str,
-            "description": "Action to perform: 'metadata', 'transcript', or 'summary'"
+            "type": "string",
+            "description": "Action to perform: 'metadata', 'transcript', or 'summary'",
+            "nullable": True
         }
     }
     
-    output_type = str
+    output_type = "string"
     
     def setup(self):
         """Initialize the tool with required libraries."""

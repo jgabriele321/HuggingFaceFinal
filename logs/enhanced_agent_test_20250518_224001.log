@@ -1,0 +1,9 @@
+2025-05-18 22:40:01,370 - OpenRouterAgent - DEBUG - Logger OpenRouterAgent initialized at level DEBUG
+2025-05-18 22:40:01,370 - SmolAgent - DEBUG - Logger SmolAgent initialized at level DEBUG
+2025-05-18 22:40:01,371 - final_answer_processor - DEBUG - Logger final_answer_processor initialized at level DEBUG
+2025-05-18 22:40:01,371 - tool_validator - DEBUG - Logger tool_validator initialized at level DEBUG
+2025-05-18 22:40:01,371 - YouTubeTool - DEBUG - Logger YouTubeTool initialized at level DEBUG
+2025-05-18 22:40:01,371 - root - INFO - Enhanced logging configuration applied
+2025-05-18 22:40:01,371 - TestEnhancedAgent - INFO - Initializing enhanced agent for testing...
+2025-05-18 22:40:01,371 - EnhancedAgent - WARNING - No OpenRouter API key provided, functionality will be limited
+2025-05-18 22:40:01,399 - EnhancedAgent - INFO - Initialized 4 tools: youtube, web_search, visit_webpage, python

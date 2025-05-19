@@ -352,18 +352,39 @@ class SmolAgent:
             if has_youtube_tool and youtube_tool:
                 self.tools.append(youtube_tool)
             
-            # Generate tool documentation for agent prompt
-            tool_docs = self._generate_tool_documentation()
+            # Set up tool validator with authorized tools
+            try:
+                from src.tool_validator import ToolValidator
+                self.tool_validator = ToolValidator(
+                    authorized_tools=self.tool_registry,
+                    authorized_imports=self.authorized_imports
+                )
+                
+                # Generate tool documentation for agent prompt
+                tool_docs = self._generate_tool_documentation()
+                
+                # Filter tool documentation to remove any unauthorized tools
+                filtered_tool_docs = self.tool_validator.filter_tool_documentation(tool_docs)
+                
+                # Create base system prompt
+                base_prompt = f"You have access to the following tools:\n{filtered_tool_docs}\n\nWhen using tools, verify they exist before attempting to use them."
+                
+                # Enhance system prompt with tool usage guidelines
+                enhanced_prompt = self.tool_validator.enhance_system_prompt(base_prompt)
+            except ImportError:
+                # Fall back to basic tool documentation if validator isn't available
+                tool_docs = self._generate_tool_documentation()
+                enhanced_prompt = f"You have access to the following tools:\n{tool_docs}\n\nWhen using tools, verify they exist before attempting to use them."
             
             # Initialize the agent with proper configuration
             self.agent = CodeAgent(
                 tools=self.tools,
                 model=self.model,
                 verbosity_level=1,
-                max_steps=5,
+                max_steps=12,  # Increased from 5 to 12
                 stream_outputs=False,
                 additional_authorized_imports=self.authorized_imports,
-                system_prompt=f"You have access to the following tools:\n{tool_docs}\n\nWhen using tools, verify they exist before attempting to use them."
+                system_prompt=enhanced_prompt
             )
             self.use_agent = True
             logger.info("Initialized with smolagents CodeAgent and explicit tool configuration")
@@ -432,6 +453,11 @@ class SmolAgent:
         Returns:
             Tuple of (valid, message)
         """
+        # Use the enhanced tool validator if available
+        if hasattr(self, 'tool_validator'):
+            return self.tool_validator.validate_tool_usage(tool_name, code)
+        
+        # Fall back to basic validation if validator not available
         # Check if tool exists
         if tool_name not in self.tool_registry:
             return False, f"Tool '{tool_name}' does not exist. Available tools: {', '.join(self.tool_registry.keys())}"
@@ -461,6 +487,9 @@ class SmolAgent:
             Result of execution
         """
         try:
+            # Scrub the prompt to remove any references to unauthorized tools
+            clean_prompt = self.scrub_prompt(prompt)
+            
             # Try main approach with specified tool
             if tool_name and self.use_agent:
                 # Validate tool before use
@@ -468,38 +497,41 @@ class SmolAgent:
                 if not valid:
                     logger.warning(f"Tool validation failed: {message}")
                     # Fall back to agent without specific tool directive
-                    return self.agent.run(prompt)
+                    return self.agent.run(clean_prompt)
                 else:
                     # Add tool directive to prompt
-                    tool_prompt = f"Use the {tool_name} tool to answer: {prompt}"
+                    tool_prompt = f"Use the {tool_name} tool to answer: {clean_prompt}"
                     return self.agent.run(tool_prompt)
             
             # Default approach: use agent if available
             if self.use_agent:
-                return self.agent.run(prompt)
+                return self.agent.run(clean_prompt)
             else:
                 # Fall back to direct model use
-                messages = [{"role": "user", "content": prompt}]
+                messages = [{"role": "user", "content": clean_prompt}]
                 return self.model(messages)
                 
         except Exception as e:
             logger.warning(f"Error in execution (attempt {attempt+1}): {str(e)}")
             
-            # If still have retries left, try again with simplified approach
+            # Get recovery suggestions based on the error
+            recovery_message = self.handle_error_recovery(e, prompt, tool_name)
+            
+            # If still have retries left, try again with recovery suggestions
             if attempt < 2:
-                # For retry 1: Try with simpler prompt
+                # For retry 1: Try with recovery guidance
                 if attempt == 0:
-                    simplified_prompt = f"Please answer this question simply: {prompt}"
-                # For retry 2: Try with most basic approach
+                    recovery_prompt = f"{prompt}\n\n{recovery_message}\n\nPlease try again with a different approach."
+                # For retry 2: Try with simpler approach
                 else:
-                    simplified_prompt = f"Answer briefly: {prompt}"
+                    recovery_prompt = f"Answer this question simply: {prompt}\n\nAvoid complex operations. Focus on basic functionality."
                 
                 # Sleep with exponential backoff before retry
                 time.sleep(2 ** attempt)
-                return self.execute_with_fallback(simplified_prompt, None, attempt + 1)
+                return self.execute_with_fallback(recovery_prompt, None, attempt + 1)
             
-            # If all retries failed, return error message
-            return "I encountered an error processing your request. Please try a simpler query."
+            # If all retries failed, return error message with recovery suggestions
+            return f"I encountered multiple errors processing your request. Here are some alternative approaches you could try:\n\n{recovery_message}"
 
     def __call__(self, question: str, file_path: Optional[str] = None, task_id: str = None) -> str:
         """
@@ -513,8 +545,11 @@ class SmolAgent:
         Returns:
             The answer to the question
         """
+        # Scrub the question to remove references to unauthorized tools
+        clean_question = self.scrub_prompt(question)
+        
         # Prepare prompt with additional context
-        prompt = question
+        prompt = clean_question
         
         if file_path and os.path.exists(file_path):
             file_info = FileHandler.get_file_info(file_path)
@@ -649,4 +684,83 @@ class SmolAgent:
             cleaned = re.sub(r'\n+No code needed.*$', '', cleaned, flags=re.MULTILINE)
             return cleaned.strip()
         
-        return answer.strip() 
+        return answer.strip()
+
+    def scrub_prompt(self, prompt):
+        """
+        Scrub prompt to remove references to unauthorized tools.
+        
+        Args:
+            prompt: Original prompt
+            
+        Returns:
+            Cleaned prompt
+        """
+        # Use the enhanced tool validator if available
+        if hasattr(self, 'tool_validator'):
+            return self.tool_validator.scrub_prompt(prompt)
+        
+        # No tool validator available, return original prompt
+        return prompt 
+
+    def handle_error_recovery(self, error, prompt, attempted_tool=None):
+        """
+        Provide error recovery mechanisms when a tool fails.
+        
+        Args:
+            error: The error that occurred
+            prompt: The prompt that caused the error
+            attempted_tool: The tool that was attempted (if any)
+            
+        Returns:
+            A suggestion for an alternative approach
+        """
+        error_str = str(error)
+        
+        # List of available tools excluding the one that failed
+        available_tools = list(self.tool_registry.keys())
+        if attempted_tool and attempted_tool in available_tools:
+            available_tools.remove(attempted_tool)
+        
+        # Determine error type and suggest alternatives
+        if "import" in error_str.lower():
+            suggestions = [
+                f"The error was related to imports. Try using only these authorized imports: {', '.join(sorted(self.authorized_imports))}",
+                f"Consider using the python tool with standard library modules only."
+            ]
+        elif "permission" in error_str.lower() or "unauthorized" in error_str.lower():
+            suggestions = [
+                f"You don't have permission to use that functionality. Try using one of these tools instead: {', '.join(available_tools)}",
+                f"Consider solving the problem with a different approach using authorized tools."
+            ]
+        elif "syntax" in error_str.lower():
+            suggestions = [
+                "There was a syntax error in your code. Please check your code carefully.",
+                "Make sure your code is properly formatted and has no syntax errors."
+            ]
+        elif "timeout" in error_str.lower() or "time limit" in error_str.lower():
+            suggestions = [
+                "The operation timed out. Try breaking your task into smaller steps.",
+                "Your solution might be too complex. Try a simpler approach."
+            ]
+        else:
+            # Generic suggestions for other errors
+            suggestions = [
+                f"Try using a different tool. Available tools: {', '.join(available_tools)}",
+                "Break down the problem into smaller, more manageable steps.",
+                "Simplify your approach to avoid complex operations."
+            ]
+        
+        # Format the recovery message
+        recovery_message = f"""
+ERROR ENCOUNTERED: {error_str}
+
+ALTERNATIVE APPROACHES:
+- {suggestions[0]}
+- {suggestions[1] if len(suggestions) > 1 else 'Try a completely different approach'}
+
+AVAILABLE TOOLS:
+{', '.join(available_tools)}
+"""
+        
+        return recovery_message 

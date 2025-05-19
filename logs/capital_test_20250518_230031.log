@@ -1,0 +1,36 @@
+2025-05-18 23:00:31,767 - CapitalTest - INFO - Starting capital test...
+2025-05-18 23:00:31,997 - OpenRouterAgent - DEBUG - Logger OpenRouterAgent initialized at level DEBUG
+2025-05-18 23:00:31,997 - SmolAgent - DEBUG - Logger SmolAgent initialized at level DEBUG
+2025-05-18 23:00:31,997 - final_answer_processor - DEBUG - Logger final_answer_processor initialized at level DEBUG
+2025-05-18 23:00:31,997 - tool_validator - DEBUG - Logger tool_validator initialized at level DEBUG
+2025-05-18 23:00:31,997 - YouTubeTool - DEBUG - Logger YouTubeTool initialized at level DEBUG
+2025-05-18 23:00:31,997 - root - INFO - Enhanced logging configuration applied
+2025-05-18 23:00:31,997 - EnhancedAgent - WARNING - No OpenRouter API key provided, using default Hugging Face model
+2025-05-18 23:00:32,122 - EnhancedAgent - INFO - Initialized 4 tools: youtube, web_search, visit_webpage, python
+2025-05-18 23:00:32,139 - EnhancedAgent - INFO - Enhanced agent initialized with model meta-llama/Llama-3.1-8B-Instruct and 4 tools
+2025-05-18 23:00:32,139 - CapitalTest - INFO - Successfully created enhanced agent
+2025-05-18 23:00:32,139 - CapitalTest - INFO - Testing question: What is the capital of France?
+2025-05-18 23:00:32,139 - EnhancedAgent - INFO - Processing query: What is the capital of France?
+2025-05-18 23:00:59,256 - DuckDuckGoSearchTool - INFO - Performing web search for: capital of France
+2025-05-18 23:00:59,427 - DuckDuckGoSearchTool - INFO - Using fallback search method
+2025-05-18 23:01:06,011 - WebpageTool - INFO - Visiting webpage: https://en.wikipedia.org/wiki/France
+2025-05-18 23:01:06,011 - WebpageTool - INFO - Extraction mode: full
+2025-05-18 23:01:16,596 - WebpageTool - INFO - Visiting webpage: https://en.wikipedia.org/wiki/France
+2025-05-18 23:01:16,596 - WebpageTool - INFO - Extraction mode: structured
+2025-05-18 23:02:13,566 - DuckDuckGoSearchTool - INFO - Performing web search for: official language of France
+2025-05-18 23:02:13,696 - DuckDuckGoSearchTool - INFO - Using fallback search method
+2025-05-18 23:02:24,206 - WebpageTool - INFO - Visiting webpage: https://en.wikipedia.org/wiki/France
+2025-05-18 23:02:24,206 - WebpageTool - INFO - Extraction mode: full
+2025-05-18 23:02:24,497 - EnhancedAgent - ERROR - Error processing query: Error in generating model output:
+422 Client Error: Unprocessable Entity for url: https://router.huggingface.co/hf-inference/models/meta-llama/Llama-3.1-8B-Instruct/v1/chat/completions (Request ID: Root=1-682a9f40-37e3e4404c59b43a557d7b92;10cd74be-aa40-4c1c-b377-d63cb5e85162)
+
+Input validation error: `inputs` tokens + `max_new_tokens` must be <= 27888. Given: 34010 `inputs` tokens and 0 `max_new_tokens`
+{"error":"Input validation error: `inputs` tokens + `max_new_tokens` must be <= 27888. Given: 34010 `inputs` tokens and 0 `max_new_tokens`","error_type":"validation"}
+
+2025-05-18 23:02:24,497 - CapitalTest - INFO - Answer received: I encountered an error while processing your query: Error in generating model output:
+422 Client Error: Unprocessable Entity for url: https://router.huggingface.co/hf-inference/models/meta-llama/Llama-3.1-8B-Instruct/v1/chat/completions (Request ID: Root=1-682a9f40-37e3e4404c59b43a557d7b92;10cd74be-aa40-4c1c-b377-d63cb5e85162)
+
+Input validation error: `inputs` tokens + `max_new_tokens` must be <= 27888. Given: 34010 `inputs` tokens and 0 `max_new_tokens`
+{"error":"Input validation error: `inputs` tokens + `max_new_tokens` must be <= 27888. Given: 34010 `inputs` tokens and 0 `max_new_tokens`","error_type":"validation"}
+
+2025-05-18 23:02:24,498 - CapitalTest - INFO - ❌ TEST FAILED: The capital of France (Paris) was not correctly identified

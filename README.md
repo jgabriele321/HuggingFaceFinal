@@ -383,3 +383,104 @@ To run the comprehensive test suite for the answer processor:
 ```bash
 ./run_answer_processor_tests.sh
 ```
+
+# Enhanced SmolAgent Implementation
+
+This repository contains an enhanced implementation of SmolAgent that incorporates proper tool usage, robust error handling, and improved answer extraction capabilities.
+
+## Key Improvements
+
+1. **ReAct Framework Implementation**
+   - Implemented proper thought tracking with explicit steps notation
+   - Added tool validation and error handling mechanisms
+   - Incorporated planning and reasoning capabilities
+
+2. **Enhanced Tool Infrastructure**
+   - Created dedicated tools for web search (DuckDuckGoSearchTool)
+   - Added webpage content extraction capabilities (WebpageTool)
+   - Implemented Python code execution capabilities (PythonInterpreterTool)
+   - Integrated YouTube content analysis (YouTubeTool)
+
+3. **Improved Answer Extraction**
+   - Enhanced pattern matching for different question types
+   - Added specific handlers for capital identification
+   - Improved entity extraction capabilities
+   - Added multi-part answer handling
+
+## Project Structure
+
+- `src/` - Core implementation files
+  - `enhanced_agent.py` - Main agent implementation using ReAct framework
+  - `final_answer_extractor.py` - Improved answer extraction logic
+  - `webpage_tool.py` - Web content extraction tool
+  - `duckduckgo_search_tool.py` - Web search tool
+  - `python_interpreter_tool.py` - Python code execution tool
+  - `youtube_tool.py` - YouTube content analysis tool
+
+- `test_*.py` - Test scripts
+  - `test_enhanced_agent.py` - Comprehensive test suite
+  - `test_answer_extractor.py` - Test for answer extraction
+  - `test_capital.py` - Specific test for capital identification
+
+- `demo_capital.py` - Demo script that extracts the capital of France
+
+## Running Tests and Demos
+
+### Test the Enhanced Agent
+
+```bash
+python test_enhanced_agent.py
+```
+
+This runs a comprehensive test suite across multiple question types to verify the enhanced agent's capabilities.
+
+### Test the Answer Extractor
+
+```bash
+python test_answer_extractor.py
+```
+
+This tests the improvements made to the answer extractor, specifically focusing on capital extraction.
+
+### Capital Identification Test
+
+```bash
+python test_capital.py
+```
+
+This test focuses specifically on whether the agent can correctly identify "Paris" as the capital of France.
+
+### Capital Extraction Demo
+
+```bash
+python demo_capital.py
+```
+
+This simplified demo shows how the enhanced answer extractor correctly identifies "Paris" as the capital of France from Wikipedia content.
+
+## Key Features
+
+### Tool Registration and Validation
+
+The agent now properly registers and validates tools before use, preventing unauthorized tool usage and handling errors gracefully.
+
+### Pattern-based Answer Extraction
+
+The improved answer extractor uses specific patterns tailored to different question types:
+- Capital identification patterns for geography questions
+- Numeric patterns for quantitative questions 
+- Entity patterns for identification questions
+
+### Error Handling and Recovery
+
+Multiple levels of error handling with fallback mechanisms:
+- Tool-level error handling for graceful recovery
+- Agent-level error handling with appropriate feedback
+- Extraction-level error handling for more reliable answers
+
+## Future Improvements
+
+1. Add more specialized tools for different domains
+2. Improve question understanding with better categorization
+3. Enhance caching mechanisms for better performance
+4. Add user feedback mechanisms to improve answer accuracy over time

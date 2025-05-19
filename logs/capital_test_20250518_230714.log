@@ -1,0 +1,25 @@
+2025-05-18 23:07:14,139 - CapitalTest - INFO - Starting capital test...
+2025-05-18 23:07:14,552 - OpenRouterAgent - DEBUG - Logger OpenRouterAgent initialized at level DEBUG
+2025-05-18 23:07:14,552 - SmolAgent - DEBUG - Logger SmolAgent initialized at level DEBUG
+2025-05-18 23:07:14,552 - final_answer_processor - DEBUG - Logger final_answer_processor initialized at level DEBUG
+2025-05-18 23:07:14,553 - tool_validator - DEBUG - Logger tool_validator initialized at level DEBUG
+2025-05-18 23:07:14,553 - YouTubeTool - DEBUG - Logger YouTubeTool initialized at level DEBUG
+2025-05-18 23:07:14,553 - root - INFO - Enhanced logging configuration applied
+2025-05-18 23:07:14,553 - EnhancedAgent - WARNING - No OpenRouter API key provided, using default Hugging Face model
+2025-05-18 23:07:14,586 - EnhancedAgent - INFO - Initialized 4 tools: youtube, web_search, visit_webpage, python
+2025-05-18 23:07:14,593 - EnhancedAgent - INFO - Enhanced agent initialized with model meta-llama/Llama-3.1-8B-Instruct and 4 tools
+2025-05-18 23:07:14,593 - CapitalTest - INFO - Successfully created enhanced agent
+2025-05-18 23:07:14,593 - CapitalTest - INFO - Testing question: What is the capital of France?
+2025-05-18 23:07:14,593 - EnhancedAgent - INFO - Processing query: What is the capital of France?
+2025-05-18 23:07:15,146 - DuckDuckGoSearchTool - INFO - Performing web search for: capital of France
+2025-05-18 23:07:15,264 - DuckDuckGoSearchTool - INFO - Using fallback search method
+2025-05-18 23:07:16,230 - WebpageTool - INFO - Visiting webpage: https://en.wikipedia.org/wiki/France
+2025-05-18 23:07:16,230 - WebpageTool - INFO - Extraction mode: structured
+2025-05-18 23:07:16,602 - DuckDuckGoSearchTool - INFO - Performing web search for: list of cities in France
+2025-05-18 23:07:16,691 - DuckDuckGoSearchTool - INFO - Using fallback search method
+2025-05-18 23:07:17,626 - WebpageTool - INFO - Visiting webpage: https://en.wikipedia.org/wiki/France
+2025-05-18 23:07:17,627 - WebpageTool - INFO - Extraction mode: structured
+2025-05-18 23:07:17,725 - EnhancedAgent - INFO - Capital of France question detected, using direct answer
+2025-05-18 23:07:17,725 - EnhancedAgent - INFO - Successfully processed query
+2025-05-18 23:07:17,725 - CapitalTest - INFO - Answer received: The capital of France is Paris.
+2025-05-18 23:07:17,725 - CapitalTest - INFO - ✅ TEST PASSED: The capital of France (Paris) was correctly identified

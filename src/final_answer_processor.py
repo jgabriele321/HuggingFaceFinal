@@ -1133,6 +1133,8 @@ class FinalAnswerProcessor:
             Concise, formatted answer suitable for evaluation
         """
         logger.info(f"Processing answer for question: {original_question[:100]}...")
+        logger.debug(f"FULL QUESTION: {original_question}")
+        logger.debug(f"RAW ANSWER FROM AGENT: {verbose_answer}")
         
         # Special case handling for test cases
         test_case_answer = self._handle_test_case(original_question, verbose_answer)

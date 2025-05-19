@@ -1,0 +1,96 @@
+2025-05-18 22:19:39,510 - final_answer_processor - WARNING - No API keys available for answer processing
+2025-05-18 22:19:39,511 - debug_script - INFO - Successfully imported final_answer_processor
+2025-05-18 22:19:39,511 - final_answer_processor - WARNING - No API keys available for answer processing
+2025-05-18 22:19:39,511 - debug_script - DEBUG - Created FinalAnswerProcessor instance
+2025-05-18 22:19:39,511 - debug_script - INFO - === Starting Final Answer Processor Debug ===
+2025-05-18 22:19:39,511 - debug_script - INFO - === Starting Example Tests ===
+2025-05-18 22:19:39,511 - debug_script - INFO - === Example 1 ===
+2025-05-18 22:19:39,511 - debug_script - INFO - Question: How many studio albums did Mercedes Sosa release between 2000 and 2009?
+2025-05-18 22:19:39,511 - debug_script - INFO - Verbose answer: Based on my analysis, Mercedes Sosa published 4 studio albums between 2000 and 2009.
+2025-05-18 22:19:39,511 - final_answer_processor - INFO - Processing answer for question: How many studio albums did Mercedes Sosa release between 2000 and 2009?...
+2025-05-18 22:19:39,511 - final_answer_processor - DEBUG - FULL QUESTION: How many studio albums did Mercedes Sosa release between 2000 and 2009?
+2025-05-18 22:19:39,511 - final_answer_processor - DEBUG - RAW ANSWER FROM AGENT: Based on my analysis, Mercedes Sosa published 4 studio albums between 2000 and 2009.
+2025-05-18 22:19:39,511 - debug_script - INFO - Final answer: '4'
+2025-05-18 22:19:39,511 - debug_script - INFO - Answer reduced by 98.8% from 84 to 1 characters
+2025-05-18 22:19:39,511 - debug_script - INFO - --------------------------------------------------
+2025-05-18 22:19:39,511 - debug_script - INFO - === Example 2 ===
+2025-05-18 22:19:39,511 - debug_script - INFO - Question: What is the NASA award number that supported the work?
+2025-05-18 22:19:39,511 - debug_script - INFO - Verbose answer: The NASA award number that supported the work was NAS5-26555.
+2025-05-18 22:19:39,511 - final_answer_processor - INFO - Processing answer for question: What is the NASA award number that supported the work?...
+2025-05-18 22:19:39,511 - final_answer_processor - DEBUG - FULL QUESTION: What is the NASA award number that supported the work?
+2025-05-18 22:19:39,511 - final_answer_processor - DEBUG - RAW ANSWER FROM AGENT: The NASA award number that supported the work was NAS5-26555.
+2025-05-18 22:19:39,512 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,512 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,513 - final_answer_processor - INFO - Transformed answer: 'The NASA award number that supported the work was NAS5-26555....' -> 'NAS5-26555'
+2025-05-18 22:19:39,513 - debug_script - INFO - Final answer: 'NAS5-26555'
+2025-05-18 22:19:39,513 - debug_script - INFO - Answer reduced by 83.6% from 61 to 10 characters
+2025-05-18 22:19:39,513 - debug_script - INFO - --------------------------------------------------
+2025-05-18 22:19:39,513 - debug_script - INFO - === Example 3 ===
+2025-05-18 22:19:39,513 - debug_script - INFO - Question: List all vegetables found in the recipe, alphabetically.
+2025-05-18 22:19:39,513 - debug_script - INFO - Verbose answer: The recipe contains the following vegetables: tomatoes, onions, bell peppers, garlic, and carrots.
+2025-05-18 22:19:39,513 - final_answer_processor - INFO - Processing answer for question: List all vegetables found in the recipe, alphabetically....
+2025-05-18 22:19:39,513 - final_answer_processor - DEBUG - FULL QUESTION: List all vegetables found in the recipe, alphabetically.
+2025-05-18 22:19:39,513 - final_answer_processor - DEBUG - RAW ANSWER FROM AGENT: The recipe contains the following vegetables: tomatoes, onions, bell peppers, garlic, and carrots.
+2025-05-18 22:19:39,513 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,513 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,514 - final_answer_processor - INFO - Using entity recognition logic
+2025-05-18 22:19:39,514 - final_answer_processor - INFO - Transformed answer: 'The recipe contains the following vegetables: tomatoes, onions, bell peppers, garlic, and carrots....' -> 'bell peppers, carrots, garlic, onions, tomatoes'
+2025-05-18 22:19:39,515 - debug_script - INFO - Final answer: 'bell peppers, carrots, garlic, onions, tomatoes'
+2025-05-18 22:19:39,515 - debug_script - INFO - Answer reduced by 52.0% from 98 to 47 characters
+2025-05-18 22:19:39,515 - debug_script - INFO - --------------------------------------------------
+2025-05-18 22:19:39,515 - debug_script - INFO - === Example 4 ===
+2025-05-18 22:19:39,515 - debug_script - INFO - Question: Who nominated the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2006?
+2025-05-18 22:19:39,515 - debug_script - INFO - Verbose answer: After researching, I found that the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2006 was nominated by User:Firsfron.
+2025-05-18 22:19:39,515 - final_answer_processor - INFO - Processing answer for question: Who nominated the only Featured Article on English Wikipedia about a dinosaur that was promoted in N...
+2025-05-18 22:19:39,515 - final_answer_processor - DEBUG - FULL QUESTION: Who nominated the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2006?
+2025-05-18 22:19:39,515 - final_answer_processor - DEBUG - RAW ANSWER FROM AGENT: After researching, I found that the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2006 was nominated by User:Firsfron.
+2025-05-18 22:19:39,515 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,515 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,515 - final_answer_processor - INFO - Using entity recognition logic
+2025-05-18 22:19:39,515 - final_answer_processor - INFO - Transformed answer: 'After researching, I found that the only Featured ...' -> 'User'
+2025-05-18 22:19:39,515 - final_answer_processor - INFO - Transformed answer: 'After researching, I found that the only Featured Article on English Wikipedia about a dinosaur that...' -> 'User'
+2025-05-18 22:19:39,515 - debug_script - INFO - Final answer: 'User'
+2025-05-18 22:19:39,515 - debug_script - INFO - Answer reduced by 97.5% from 162 to 4 characters
+2025-05-18 22:19:39,515 - debug_script - INFO - --------------------------------------------------
+2025-05-18 22:19:39,515 - debug_script - INFO - === Example 5 ===
+2025-05-18 22:19:39,515 - debug_script - INFO - Question: In the video https://www.youtube.com/watch?v=L1vXCYZAYYM, what is the highest number of bird species shown simultaneously?
+2025-05-18 22:19:39,515 - debug_script - INFO - Verbose answer: After watching the video, the highest number of bird species shown simultaneously appears to be 6, which occurs at the 1:32 mark where you can see a variety of songbirds at a feeder including cardinals, chickadees, and finches.
+2025-05-18 22:19:39,515 - final_answer_processor - INFO - Processing answer for question: In the video https://www.youtube.com/watch?v=L1vXCYZAYYM, what is the highest number of bird species...
+2025-05-18 22:19:39,515 - final_answer_processor - DEBUG - FULL QUESTION: In the video https://www.youtube.com/watch?v=L1vXCYZAYYM, what is the highest number of bird species shown simultaneously?
+2025-05-18 22:19:39,515 - final_answer_processor - DEBUG - RAW ANSWER FROM AGENT: After watching the video, the highest number of bird species shown simultaneously appears to be 6, which occurs at the 1:32 mark where you can see a variety of songbirds at a feeder including cardinals, chickadees, and finches.
+2025-05-18 22:19:39,515 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,515 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,516 - final_answer_processor - INFO - Using enhanced numeric extraction
+2025-05-18 22:19:39,516 - final_answer_processor - INFO - Transformed answer: 'After watching the video, the highest number of bi...' -> '32'
+2025-05-18 22:19:39,516 - final_answer_processor - INFO - Transformed answer: 'After watching the video, the highest number of bird species shown simultaneously appears to be 6, w...' -> '32'
+2025-05-18 22:19:39,516 - debug_script - INFO - Final answer: '32'
+2025-05-18 22:19:39,516 - debug_script - INFO - Answer reduced by 99.1% from 227 to 2 characters
+2025-05-18 22:19:39,516 - debug_script - INFO - --------------------------------------------------
+2025-05-18 22:19:39,516 - debug_script - INFO - === Testing from Logs ===
+2025-05-18 22:19:39,518 - debug_script - INFO - === Debugging Pattern Matching ===
+2025-05-18 22:19:39,518 - debug_script - INFO - Question: In the video https://www.youtube.com/watch?v=L1vXCYZAYYM, what is the highest number of bird species shown simultaneously?
+2025-05-18 22:19:39,518 - debug_script - INFO - Verbose answer: After watching the video, the highest number of bird species shown simultaneously appears to be 6, which occurs at the 1:32 mark where you can see a variety of songbirds at a feeder including cardinals, chickadees, and finches.
+2025-05-18 22:19:39,518 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,518 - final_answer_processor - INFO - Using enhanced numeric extraction
+2025-05-18 22:19:39,518 - final_answer_processor - INFO - Transformed answer: 'After watching the video, the highest number of bi...' -> '32'
+2025-05-18 22:19:39,518 - debug_script - INFO - Pattern extraction result: '32'
+2025-05-18 22:19:39,518 - final_answer_processor - INFO - Using enhanced numeric extraction
+2025-05-18 22:19:39,518 - debug_script - INFO - Numeric extraction result: '32'
+2025-05-18 22:19:39,518 - debug_script - INFO - Detected entity types: {'person': False, 'location': False, 'organization': False, 'other': True}
+2025-05-18 22:19:39,519 - final_answer_processor - INFO - Using entity recognition logic
+2025-05-18 22:19:39,519 - debug_script - INFO - Entity extraction result: 'After'
+2025-05-18 22:19:39,519 - debug_script - INFO - --------------------------------------------------
+2025-05-18 22:19:39,519 - debug_script - INFO - === Debugging Pattern Matching ===
+2025-05-18 22:19:39,519 - debug_script - INFO - Question: Who nominated the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2006?
+2025-05-18 22:19:39,519 - debug_script - INFO - Verbose answer: After researching, I found that the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2006 was nominated by User:Firsfron.
+2025-05-18 22:19:39,519 - final_answer_processor - INFO - Using pattern-based extraction
+2025-05-18 22:19:39,519 - final_answer_processor - INFO - Using entity recognition logic
+2025-05-18 22:19:39,519 - final_answer_processor - INFO - Transformed answer: 'After researching, I found that the only Featured ...' -> 'User'
+2025-05-18 22:19:39,519 - debug_script - INFO - Pattern extraction result: 'User'
+2025-05-18 22:19:39,519 - final_answer_processor - INFO - Using enhanced numeric extraction
+2025-05-18 22:19:39,519 - debug_script - INFO - Numeric extraction result: '2006'
+2025-05-18 22:19:39,519 - debug_script - INFO - Detected entity types: {'person': True, 'location': False, 'organization': False, 'other': False}
+2025-05-18 22:19:39,519 - final_answer_processor - INFO - Using entity recognition logic
+2025-05-18 22:19:39,519 - debug_script - INFO - Entity extraction result: 'User'
+2025-05-18 22:19:39,519 - debug_script - INFO - --------------------------------------------------
+2025-05-18 22:19:39,519 - debug_script - INFO - === Final Answer Processor Debug Complete ===

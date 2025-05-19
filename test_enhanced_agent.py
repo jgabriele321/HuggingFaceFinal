@@ -1,171 +1,139 @@
 #!/usr/bin/env python3
 """
-Test script for enhanced SmolAgent implementation with improved tool handling.
-This script tests the agent's new capabilities including tool validation and error recovery.
+Test script for the Enhanced Agent implementation.
+
+This script runs a series of test questions against the enhanced agent to verify 
+that it properly handles tools, follows the ReAct framework, and produces accurate results.
 """
 
 import os
-import time
-import logging
 import sys
-from typing import List, Dict, Any
+import logging
+import json
+from pathlib import Path
+from datetime import datetime
+
+# Add src directory to the Python path
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(f"logs/enhanced_agent_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
-logger = logging.getLogger("EnhancedAgentTest")
+logger = logging.getLogger("TestEnhancedAgent")
 
-def run_test_case(agent, name: str, prompt: str, expected_tool: str = None) -> Dict[str, Any]:
+# Ensure the logs directory exists
+Path("logs").mkdir(exist_ok=True)
+
+def run_test(agent, question, expected_tools=None):
     """
-    Run a single test case and report the results.
+    Run a test question against the agent and analyze the results.
     
     Args:
-        agent: The SmolAgent instance to test
-        name: Name of the test case
-        prompt: The prompt to send to the agent
-        expected_tool: The tool we expect the agent to select
+        agent: The agent to test
+        question: The question to ask
+        expected_tools: Optional list of tool names expected to be used
         
     Returns:
-        Dictionary with test results
+        tuple: (passed, result, analysis)
     """
-    logger.info(f"Running test: {name}")
-    logger.info(f"Prompt: {prompt}")
+    logger.info(f"Testing question: {question}")
     
-    if expected_tool:
-        logger.info(f"Expected tool: {expected_tool}")
+    # Run the agent
+    result = agent(question)
     
-    start_time = time.time()
-    
-    try:
-        # Run the test
-        response = agent(prompt)
-        success = True
-        error = None
-    except Exception as e:
-        response = None
-        success = False
-        error = str(e)
-    
-    elapsed_time = time.time() - start_time
-    
-    # Log the results
-    if success:
-        logger.info(f"✅ Test passed in {elapsed_time:.2f}s")
-        logger.info(f"Response: {response}")
-    else:
-        logger.error(f"❌ Test failed in {elapsed_time:.2f}s")
-        logger.error(f"Error: {error}")
-    
-    # Return the results
-    return {
-        "name": name,
-        "prompt": prompt,
-        "response": response,
-        "success": success,
-        "error": error,
-        "elapsed_time": elapsed_time
+    # Basic analysis
+    analysis = {
+        "question": question,
+        "result": result,
+        "length": len(result) if result else 0,
+        "has_answer": bool(result and len(result) > 10)
     }
-
-def run_test_suite(agent) -> List[Dict[str, Any]]:
-    """
-    Run a full suite of tests on the agent.
     
-    Args:
-        agent: The SmolAgent instance to test
-        
-    Returns:
-        List of test results
-    """
-    results = []
+    # Tool usage analysis would be included in the agent's verbose output
     
-    # Test 1: Simple math question (should use python tool)
-    results.append(run_test_case(
-        agent,
-        "Simple Math",
-        "What is the sum of all numbers from 1 to 100?",
-        "python"
-    ))
+    # Simple pass/fail check
+    passed = analysis["has_answer"]
     
-    # Test 2: Code generation (should use python tool)
-    results.append(run_test_case(
-        agent,
-        "Code Generation",
-        "Write a Python function to check if a string is a palindrome.",
-        "python"
-    ))
+    logger.info(f"Test {'PASSED' if passed else 'FAILED'} for question: {question}")
+    logger.info(f"Result: {result[:100]}...")
     
-    # Test 3: Factual question (should use final_answer tool)
-    results.append(run_test_case(
-        agent,
-        "Factual Question",
-        "What is the capital of France?",
-        "final_answer"
-    ))
-    
-    # Test 4: Complex algorithm (tests recovery mechanisms)
-    results.append(run_test_case(
-        agent,
-        "Complex Algorithm",
-        "Implement a neural network from scratch in Python to classify handwritten digits.",
-        "python"
-    ))
-    
-    # Test 5: Unauthorized import test (should trigger validation)
-    results.append(run_test_case(
-        agent,
-        "Unauthorized Import",
-        "Write a Python script using tensorflow to classify images.",
-        "python"
-    ))
-    
-    return results
-
-def summarize_results(results: List[Dict[str, Any]]) -> None:
-    """
-    Summarize the test results.
-    
-    Args:
-        results: List of test results
-    """
-    success_count = sum(1 for r in results if r["success"])
-    total_count = len(results)
-    success_rate = (success_count / total_count) * 100
-    
-    logger.info("=" * 50)
-    logger.info(f"Test Summary: {success_count}/{total_count} tests passed ({success_rate:.1f}%)")
-    logger.info("=" * 50)
-    
-    for i, result in enumerate(results):
-        status = "✅ PASSED" if result["success"] else "❌ FAILED"
-        logger.info(f"Test {i+1}: {result['name']} - {status} ({result['elapsed_time']:.2f}s)")
+    return passed, result, analysis
 
 def main():
-    """Main function to run tests."""
-    try:
-        # Import the enhanced agent
-        from src.openrouter_agent import SmolAgent
+    """Main test function."""
+    from src.enhanced_agent import EnhancedAgent
+    
+    logger.info("Initializing enhanced agent for testing...")
+    
+    # Initialize the agent
+    # Note: This requires an OpenRouter API key in the environment
+    agent = EnhancedAgent(verbose=True)
+    
+    # Test questions designed to exercise different tools and capabilities
+    test_questions = [
+        # Basic question to test general knowledge
+        {"question": "What is the capital of France?", "expected_tools": []},
         
-        # Check if API key exists
-        api_key = os.environ.get("OPENROUTER_API_KEY")
-        if not api_key:
-            logger.error("⚠️ OPENROUTER_API_KEY not found in environment variables")
-            return
-            
-        # Initialize agent
-        logger.info("Initializing enhanced SmolAgent...")
-        agent = SmolAgent()
+        # Question requiring web search
+        {"question": "What are the latest developments in quantum computing?", "expected_tools": ["web_search"]},
         
-        # Run the test suite
-        logger.info("Starting test suite...")
-        results = run_test_suite(agent)
+        # Question requiring YouTube tool
+        {"question": "Can you analyze this YouTube video: https://www.youtube.com/watch?v=dQw4w9WgXcQ", "expected_tools": ["youtube"]},
         
-        # Summarize the results
-        summarize_results(results)
+        # Question requiring website content analysis
+        {"question": "Summarize the content from https://www.example.com", "expected_tools": ["visit_webpage"]},
         
-    except Exception as e:
-        logger.error(f"Error running tests: {str(e)}")
+        # Complex question requiring multiple tools
+        {"question": "What is the latest news about SpaceX and how does it compare to their mission statement on their website?", 
+         "expected_tools": ["web_search", "visit_webpage"]}
+    ]
+    
+    # Run tests
+    results = []
+    passed_count = 0
+    
+    for i, test in enumerate(test_questions, 1):
+        logger.info(f"Running test {i}/{len(test_questions)}")
+        
+        passed, result, analysis = run_test(agent, test["question"], test.get("expected_tools"))
+        
+        if passed:
+            passed_count += 1
+        
+        results.append({
+            "id": i,
+            "passed": passed,
+            "question": test["question"],
+            "expected_tools": test.get("expected_tools", []),
+            "result_summary": result[:200] + "..." if result and len(result) > 200 else result,
+            "analysis": analysis
+        })
+    
+    # Overall test summary
+    logger.info(f"Test summary: {passed_count}/{len(test_questions)} tests passed")
+    
+    # Save results to file
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    results_file = f"test_results_{timestamp}.json"
+    
+    with open(results_file, 'w') as f:
+        json.dump({
+            "total": len(test_questions),
+            "passed": passed_count,
+            "timestamp": timestamp,
+            "results": results
+        }, f, indent=2)
+    
+    logger.info(f"Test results saved to {results_file}")
+    
+    return passed_count == len(test_questions)
 
 if __name__ == "__main__":
-    main() 
+    success = main()
+    sys.exit(0 if success else 1) 

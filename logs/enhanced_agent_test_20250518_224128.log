@@ -1,0 +1,62 @@
+2025-05-18 22:41:28,793 - OpenRouterAgent - DEBUG - Logger OpenRouterAgent initialized at level DEBUG
+2025-05-18 22:41:28,793 - SmolAgent - DEBUG - Logger SmolAgent initialized at level DEBUG
+2025-05-18 22:41:28,793 - final_answer_processor - DEBUG - Logger final_answer_processor initialized at level DEBUG
+2025-05-18 22:41:28,794 - tool_validator - DEBUG - Logger tool_validator initialized at level DEBUG
+2025-05-18 22:41:28,794 - YouTubeTool - DEBUG - Logger YouTubeTool initialized at level DEBUG
+2025-05-18 22:41:28,794 - root - INFO - Enhanced logging configuration applied
+2025-05-18 22:41:28,794 - TestEnhancedAgent - INFO - Initializing enhanced agent for testing...
+2025-05-18 22:41:28,794 - EnhancedAgent - WARNING - No OpenRouter API key provided, functionality will be limited
+2025-05-18 22:41:28,824 - EnhancedAgent - INFO - Initialized 4 tools: youtube, web_search, visit_webpage, python
+2025-05-18 22:41:28,830 - EnhancedAgent - INFO - Enhanced agent initialized with model anthropic/claude-3-haiku and 4 tools
+2025-05-18 22:41:28,830 - TestEnhancedAgent - INFO - Running test 1/5
+2025-05-18 22:41:28,831 - TestEnhancedAgent - INFO - Testing question: What is the capital of France?
+2025-05-18 22:41:28,831 - EnhancedAgent - INFO - Processing query: What is the capital of France?
+2025-05-18 22:41:28,990 - EnhancedAgent - ERROR - Error processing query: 404 Client Error. (Request ID: Root=1-682a9a58-7ddc29534e8e524431937c70;24c1303d-4d68-4997-80a6-8f631f08041c)
+
+Repository Not Found for url: https://huggingface.co/api/models/anthropic/claude-3-haiku?expand=inferenceProviderMapping.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+2025-05-18 22:41:28,990 - TestEnhancedAgent - INFO - Test PASSED for question: What is the capital of France?
+2025-05-18 22:41:28,990 - TestEnhancedAgent - INFO - Result: I encountered an error while processing your query: 404 Client Error. (Request ID: Root=1-682a9a58-7...
+2025-05-18 22:41:28,991 - TestEnhancedAgent - INFO - Running test 2/5
+2025-05-18 22:41:28,991 - TestEnhancedAgent - INFO - Testing question: What are the latest developments in quantum computing?
+2025-05-18 22:41:28,991 - EnhancedAgent - INFO - Processing query: What are the latest developments in quantum computing?
+2025-05-18 22:41:29,029 - EnhancedAgent - ERROR - Error processing query: 404 Client Error. (Request ID: Root=1-682a9a59-329297d2471d11815f14037c;92b056d4-570b-41fa-bac6-2c135f90e728)
+
+Repository Not Found for url: https://huggingface.co/api/models/anthropic/claude-3-haiku?expand=inferenceProviderMapping.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+2025-05-18 22:41:29,030 - TestEnhancedAgent - INFO - Test PASSED for question: What are the latest developments in quantum computing?
+2025-05-18 22:41:29,030 - TestEnhancedAgent - INFO - Result: I encountered an error while processing your query: 404 Client Error. (Request ID: Root=1-682a9a59-3...
+2025-05-18 22:41:29,030 - TestEnhancedAgent - INFO - Running test 3/5
+2025-05-18 22:41:29,030 - TestEnhancedAgent - INFO - Testing question: Can you analyze this YouTube video: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+2025-05-18 22:41:29,030 - EnhancedAgent - INFO - Processing query: Can you analyze this YouTube video: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+2025-05-18 22:41:29,066 - EnhancedAgent - ERROR - Error processing query: 404 Client Error. (Request ID: Root=1-682a9a59-387592794354a36c1a1f90c9;5a638991-da6d-4428-b5d6-c0b22c1c08e6)
+
+Repository Not Found for url: https://huggingface.co/api/models/anthropic/claude-3-haiku?expand=inferenceProviderMapping.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+2025-05-18 22:41:29,066 - TestEnhancedAgent - INFO - Test PASSED for question: Can you analyze this YouTube video: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+2025-05-18 22:41:29,066 - TestEnhancedAgent - INFO - Result: I encountered an error while processing your query: 404 Client Error. (Request ID: Root=1-682a9a59-3...
+2025-05-18 22:41:29,066 - TestEnhancedAgent - INFO - Running test 4/5
+2025-05-18 22:41:29,066 - TestEnhancedAgent - INFO - Testing question: Summarize the content from https://www.example.com
+2025-05-18 22:41:29,067 - EnhancedAgent - INFO - Processing query: Summarize the content from https://www.example.com
+2025-05-18 22:41:29,103 - EnhancedAgent - ERROR - Error processing query: 404 Client Error. (Request ID: Root=1-682a9a59-1f6e229d04136f3c06501db0;c2909b07-6bf4-4e51-b1a9-1168b53a7f7c)
+
+Repository Not Found for url: https://huggingface.co/api/models/anthropic/claude-3-haiku?expand=inferenceProviderMapping.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+2025-05-18 22:41:29,103 - TestEnhancedAgent - INFO - Test PASSED for question: Summarize the content from https://www.example.com
+2025-05-18 22:41:29,103 - TestEnhancedAgent - INFO - Result: I encountered an error while processing your query: 404 Client Error. (Request ID: Root=1-682a9a59-1...
+2025-05-18 22:41:29,103 - TestEnhancedAgent - INFO - Running test 5/5
+2025-05-18 22:41:29,103 - TestEnhancedAgent - INFO - Testing question: What is the latest news about SpaceX and how does it compare to their mission statement on their website?
+2025-05-18 22:41:29,103 - EnhancedAgent - INFO - Processing query: What is the latest news about SpaceX and how does it compare to their mission statement on their website?
+2025-05-18 22:41:29,729 - EnhancedAgent - ERROR - Error processing query: 404 Client Error. (Request ID: Root=1-682a9a59-54264330463d7965563f595e;1c9517ba-4803-46cd-832d-b8bfef7d783d)
+
+Repository Not Found for url: https://huggingface.co/api/models/anthropic/claude-3-haiku?expand=inferenceProviderMapping.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated. For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+2025-05-18 22:41:29,729 - TestEnhancedAgent - INFO - Test PASSED for question: What is the latest news about SpaceX and how does it compare to their mission statement on their website?
+2025-05-18 22:41:29,731 - TestEnhancedAgent - INFO - Result: I encountered an error while processing your query: 404 Client Error. (Request ID: Root=1-682a9a59-5...
+2025-05-18 22:41:29,731 - TestEnhancedAgent - INFO - Test summary: 5/5 tests passed
+2025-05-18 22:41:29,738 - TestEnhancedAgent - INFO - Test results saved to test_results_20250518_224129.json
