@@ -102,8 +102,22 @@ class FinalAnswerProcessor:
             "coordinate_format": False,
             "id_extraction": False,
             "truncation_risk": False,
+            "currency": False,           # Added currency flag
+            "decimal_places": None,      # Added decimal places control
             "expected_length": "short"  # short, medium, or long
         }
+        
+        # Check for currency indicators
+        currency_patterns = [
+            r'\$|\busd\b|\bdollars?\b',
+            r'\bprice\b|\bcost\b|\bworth\b|\bvalue\b',
+            r'\bspent\b|\bpaid\b|\bexpense\b'
+        ]
+        format_info["currency"] = any(re.search(pattern, question.lower()) for pattern in currency_patterns)
+        
+        # Set default decimal places for currency
+        if format_info["currency"]:
+            format_info["decimal_places"] = 2
         
         # Check for numeric indicators
         numeric_patterns = [
@@ -808,6 +822,49 @@ class FinalAnswerProcessor:
         if not format_info["code_answer"]:
             answer = answer.strip('\'"`')
         
+        # Handle currency and numeric formatting
+        if format_info["numeric_answer"] or format_info["currency"]:
+            # Try to extract just the number if there's text
+            number_pattern = re.search(r'(\d{1,3}(?:,\d{3})*(?:\.\d+)?)', answer)
+            if number_pattern:
+                # Extract and clean up the number
+                raw_number = number_pattern.group(1).replace(',', '')
+                try:
+                    number = float(raw_number)
+                    # Format based on requirements
+                    if format_info["currency"]:
+                        # Always use 2 decimal places for currency
+                        return f"{number:.2f}"
+                    elif format_info["decimal_places"] is not None:
+                        # Use specified precision
+                        return f"{number:.{format_info['decimal_places']}f}"
+                    else:
+                        # Use default formatting - integers without decimal point
+                        if number.is_integer():
+                            return str(int(number))
+                        return str(number)
+                except ValueError:
+                    # If conversion fails, return the raw number
+                    return raw_number
+        
+        # Handle exact match requirements
+        if format_info["exact_match"]:
+            # Remove explanatory text
+            answer = re.sub(r'\s*\([^)]*\)', '', answer)  # Remove parentheticals
+            answer = re.sub(r'\s*-.*$', '', answer)       # Remove everything after dash
+            answer = re.sub(r'\s*:.*$', '', answer)       # Remove everything after colon
+            answer = re.sub(r'\s+\w+\s+is\s+', ' ', answer)  # Remove "X is" patterns
+            
+            # Remove common prefixes like "the answer is"
+            answer = re.sub(r'^(?:the\s+)?(?:answer|result|value|output) (?:is|=|:)\s*', '', answer, flags=re.IGNORECASE)
+            
+            # Clean up whitespace
+            answer = re.sub(r'\s+', ' ', answer).strip()
+            
+            # If it's an ID or code, ensure no extra whitespace
+            if format_info["id_extraction"] or any(pattern in question.lower() for pattern in ['code', 'password', 'token', 'key']):
+                answer = answer.replace(' ', '')
+        
         # Handle truncation prevention
         max_answer_length = 10000  # Reasonable default max length
         if format_info["truncation_risk"]:
@@ -928,8 +985,14 @@ class FinalAnswerProcessor:
         if format_info["list_answer"]:
             # First clean up the list content by removing explanations
             if "," in answer:
-                # Split by commas, clean each item, then rejoin
+                # Check if the answer is already a clean comma-separated list with multiple items
                 items = [item.strip() for item in answer.split(",") if item.strip()]
+                if len(items) > 1 and all(re.match(r'^[a-zA-Z0-9]', item) for item in items):
+                    # If it's already a clean, comma-separated list
+                    if format_info["alphabetical"]:
+                        items = sorted(items, key=str.lower)
+                    return ", ".join(items)
+                
                 # Clean articles and trailing punctuation
                 cleaned_items = []
                 for item in items:
@@ -942,41 +1005,63 @@ class FinalAnswerProcessor:
                     if item:
                         cleaned_items.append(item)
                 
-                # Sort alphabetically if required
+                # Sort alphabetically if required - improved to handle case insensitivity
                 if format_info["alphabetical"]:
-                    cleaned_items = sorted(cleaned_items)
+                    cleaned_items = sorted(cleaned_items, key=str.lower)
                 
                 # Sort numerically if required
                 if format_info["ascending"]:
                     try:
                         # Check if all items can be converted to numbers
                         numeric_items = []
-                        for item in cleaned_items:
-                            num = float(item)
-                            numeric_items.append(num)
-                        numeric_items.sort()
+                        numeric_conversion_failed = False
                         
-                        # Convert back to strings
-                        cleaned_items = []
-                        for num in numeric_items:
-                            if num.is_integer():
-                                cleaned_items.append(str(int(num)))
-                            else:
-                                cleaned_items.append(str(num))
+                        for item in cleaned_items:
+                            try:
+                                # Try to extract just the number if mixed with text
+                                number_match = re.search(r'(\d+\.?\d*)', item)
+                                if number_match:
+                                    num = float(number_match.group(1))
+                                else:
+                                    num = float(item)
+                                numeric_items.append((num, item))  # Store original item for non-numeric parts
+                            except (ValueError, TypeError):
+                                numeric_conversion_failed = True
+                                break
+                                
+                        if not numeric_conversion_failed:
+                            # Sort by the numeric value
+                            numeric_items.sort()
+                            
+                            # Convert back to strings, preserving original format
+                            cleaned_items = [original for _, original in numeric_items]
                     except (ValueError, AttributeError):
                         # Not all items could be converted to numbers, keep original order
                         pass
                 
-                # Rejoin with commas
+                # Join with comma and space
                 if cleaned_items:
                     return ", ".join(cleaned_items)
             
-            # If no commas but seems to be a list with spaces
-            elif len(answer.split()) > 1 and not format_info["code_answer"]:
-                items = answer.split()
+            # If no commas but seems to be a list with spaces or newlines
+            elif not format_info["code_answer"]:
+                if "\n" in answer:
+                    # Handle bullet point or numbered lists
+                    items = [re.sub(r'^[\s•*\-\d.]+\s*', '', line.strip()) for line in answer.split("\n") if line.strip()]
+                else:
+                    # Handle space-separated items
+                    items = answer.split()
+                
+                # Filter out empty items
+                items = [item for item in items if item.strip()]
+                
+                # Sort if required
                 if format_info["alphabetical"]:
-                    items = sorted(items)
-                return ", ".join(items)
+                    items = sorted(items, key=str.lower)
+                
+                # Join with commas
+                if items:
+                    return ", ".join(items)
         
         # Validate code answers
         if format_info["code_answer"]:
