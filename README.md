@@ -338,3 +338,48 @@ print(response)
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Final Answer Processor
+
+The project includes a comprehensive final answer processor that ensures the SmolAgent's responses match exactly what automated evaluation systems expect. This component is critical for achieving high evaluation scores, as it transforms verbose, explanatory answers into concise, exact-match responses.
+
+### Key Features
+
+- **Format Detection**: Intelligently identifies the expected answer format based on question analysis
+- **Advanced Pattern Extraction**: Uses sophisticated regex patterns to extract precise answers from verbose text
+- **Format-Specific Validation**: Tailors processing to handle various answer types:
+  - Numeric answers (extracts just the number without units or text)
+  - Lists (standardizes formatting, handles alphabetical ordering)
+  - Yes/No questions (normalizes to "Yes" or "No")
+  - Chess moves (extracts standard algebraic notation)
+  - Code snippets (removes markdown formatting)
+  - File analyses (extracts key data points)
+  - Reversed text (handles detecting and processing backwards text)
+
+- **Truncation Prevention**: Ensures answers are never cut off mid-response
+- **Length Validation**: Implements checks to prevent answers from being too verbose
+- **LLM-Assisted Processing**: Optionally uses an LLM to extract answers when pattern matching isn't sufficient
+
+### Usage
+
+```python
+from src.final_answer_processor import process_final_answer
+
+# The original question
+question = "How many albums did the artist release in 2010?"
+
+# A verbose answer from the agent
+verbose_answer = "After analyzing the artist's discography, I found that they released 3 studio albums in 2010."
+
+# Process into a concise, exact-match answer
+final_answer = process_final_answer(question, verbose_answer)
+# Result: "3"
+```
+
+### Running Tests
+
+To run the comprehensive test suite for the answer processor:
+
+```bash
+./run_answer_processor_tests.sh
+```
