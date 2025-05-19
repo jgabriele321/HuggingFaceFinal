@@ -1,15 +1,15 @@
-2025-05-19 00:17:43,099 - OpenRouterAgent - DEBUG - Logger OpenRouterAgent initialized at level DEBUG
-2025-05-19 00:17:43,099 - SmolAgent - DEBUG - Logger SmolAgent initialized at level DEBUG
-2025-05-19 00:17:43,099 - final_answer_processor - DEBUG - Logger final_answer_processor initialized at level DEBUG
-2025-05-19 00:17:43,099 - tool_validator - DEBUG - Logger tool_validator initialized at level DEBUG
-2025-05-19 00:17:43,100 - YouTubeTool - DEBUG - Logger YouTubeTool initialized at level DEBUG
-2025-05-19 00:17:43,100 - root - INFO - Enhanced logging configuration applied
-2025-05-19 00:17:43,103 - asyncio - DEBUG - Using selector: KqueueSelector
-2025-05-19 00:17:43,110 - httpcore.connection - DEBUG - connect_tcp.started host='api.gradio.app' port=443 local_address=None timeout=3 socket_options=None
-2025-05-19 00:17:43,124 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): huggingface.co:443
-2025-05-19 00:17:43,147 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): huggingface.co:443
-2025-05-19 00:17:43,199 - urllib3.connectionpool - DEBUG - https://huggingface.co:443 "HEAD /api/telemetry/gradio/initiated HTTP/1.1" 200 0
-2025-05-19 00:17:43,211 - urllib3.connectionpool - DEBUG - https://huggingface.co:443 "GET /api/whoami-v2 HTTP/1.1" 200 396
-2025-05-19 00:17:43,269 - urllib3.connectionpool - DEBUG - https://huggingface.co:443 "GET /api/whoami-v2 HTTP/1.1" 200 396
-2025-05-19 00:17:43,282 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x10294ee40>
-2025-05-19 00:17:43,283 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x10b81d880> server_hostname='api.gradio.app' timeout=3
+2025-05-19 01:20:02,687 - OpenRouterAgent - DEBUG - Logger OpenRouterAgent initialized at level DEBUG
+2025-05-19 01:20:02,687 - SmolAgent - DEBUG - Logger SmolAgent initialized at level DEBUG
+2025-05-19 01:20:02,687 - final_answer_processor - DEBUG - Logger final_answer_processor initialized at level DEBUG
+2025-05-19 01:20:02,687 - tool_validator - DEBUG - Logger tool_validator initialized at level DEBUG
+2025-05-19 01:20:02,688 - YouTubeTool - DEBUG - Logger YouTubeTool initialized at level DEBUG
+2025-05-19 01:20:02,689 - root - INFO - Enhanced logging configuration applied
+2025-05-19 01:20:02,698 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-05-19 01:20:02,705 - httpcore.connection - DEBUG - connect_tcp.started host='api.gradio.app' port=443 local_address=None timeout=3 socket_options=None
+2025-05-19 01:20:02,719 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): huggingface.co:443
+2025-05-19 01:20:02,741 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): huggingface.co:443
+2025-05-19 01:20:02,810 - urllib3.connectionpool - DEBUG - https://huggingface.co:443 "HEAD /api/telemetry/gradio/initiated HTTP/1.1" 200 0
+2025-05-19 01:20:02,827 - urllib3.connectionpool - DEBUG - https://huggingface.co:443 "GET /api/whoami-v2 HTTP/1.1" 200 396
+2025-05-19 01:20:02,869 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x10275ee40>
+2025-05-19 01:20:02,869 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x10b5f5370> server_hostname='api.gradio.app' timeout=3
+2025-05-19 01:20:02,885 - urllib3.connectionpool - DEBUG - https://huggingface.co:443 "GET /api/whoami-v2 HTTP/1.1" 200 396

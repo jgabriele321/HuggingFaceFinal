@@ -204,6 +204,25 @@ class DuckDuckGoSearchTool(Tool):
             return f"Error performing fallback search: {str(e)}"
 
 # Function to create an instance of the tool
-def get_duckduckgo_search_tool() -> DuckDuckGoSearchTool:
-    """Create and return a DuckDuckGo search tool instance."""
-    return DuckDuckGoSearchTool() 
+def get_duckduckgo_search_tool() -> Dict[str, Any]:
+    """Create and return a DuckDuckGo search tool configuration."""
+    return {
+        "name": "web_search",
+        "description": "Search the web for information using DuckDuckGo",
+        "function": DuckDuckGoSearchTool().forward,
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The search query"
+                },
+                "num_results": {
+                    "type": "integer",
+                    "description": "Number of results to return (default: 5)",
+                    "default": 5
+                }
+            },
+            "required": ["query"]
+        }
+    } 

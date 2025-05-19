@@ -14,6 +14,7 @@ import time
 import re
 from typing import List, Dict, Any, Optional, Union
 from pathlib import Path
+import inspect
 
 # Import smolagents components
 from smolagents import Tool, CodeAgent, HfApiModel
@@ -23,159 +24,130 @@ from config.logging_config import configure_logging
 configure_logging()
 logger = logging.getLogger("EnhancedAgent")
 
-# This agent uses the default CodeAgent system prompt from smolagents
+# Import tools
+from src.youtube_tool import get_youtube_tool
+from src.duckduckgo_search_tool import get_duckduckgo_search_tool
+from src.webpage_tool import get_webpage_tool
+from src.python_interpreter_tool import get_python_interpreter_tool
+from src.file_handler_tool import get_file_handler_tool
 
-class SmolAgent:  # Note: Changed from EnhancedAgent to SmolAgent for compatibility
-    """
-    Enhanced agent implementation using the ReAct framework from smolagents.
+class SmolTool(Tool):
+    """Custom Tool class that ensures proper attribute initialization."""
     
-    This agent tracks reasoning steps, properly handles tools, and provides
-    robust error handling with fallback mechanisms.
-    """
-    
-    def __init__(
-        self, 
-        openrouter_api_key: Optional[str] = None,
-        model_id: str = None, 
-        max_steps: int = 12,
-        planning_interval: int = 3,
-        verbose: bool = True,
-        hf_token: Optional[str] = None,  # Added for compatibility with app.py
-        use_mock: bool = False,         # Added for compatibility with app.py
-        api_url: Optional[str] = None,  # Added for compatibility with app.py
-        **kwargs                        # Accept additional keyword arguments for compatibility
-    ):
-        """
-        Initialize the enhanced agent.
+    def __init__(self, name: str, description: str, function: callable, parameters: dict):
+        """Initialize the tool with required attributes."""
+        super().__init__()
+        # Set required class attributes
+        self.name = name
+        self.description = description
+        self._function = function
         
-        Args:
-            openrouter_api_key: OpenRouter API key
-            model_id: Model ID to use with OpenRouter
-            max_steps: Maximum number of steps to take
-            planning_interval: How often to run a planning step
-            verbose: Whether to log verbose output
-            hf_token: Hugging Face token (not used, kept for compatibility)
-            use_mock: Whether to use a mock model (not used directly)
-            api_url: API URL (not used, kept for compatibility)
-            **kwargs: Additional keyword arguments for compatibility
-        """
-        self.openrouter_api_key = openrouter_api_key or os.environ.get("OPENROUTER_API_KEY")
-        self.hf_token = hf_token or os.environ.get("HF_TOKEN")
-        
-        # Check if we can use OpenAI client for OpenRouter
-        self.can_use_openai_client = False
-        try:
-            import openai
-            self.can_use_openai_client = True
-        except ImportError:
-            logger.warning("openai package not installed, will use HfApiModel for all models")
-        
-        # Use model_id from args, or from env var, or default to a free open model
-        if model_id:
-            self.model_id = model_id
+        # Convert parameters to the format smolagents expects
+        self.inputs = {}
+        if "properties" in parameters:
+            for param_name, param_info in parameters["properties"].items():
+                self.inputs[param_name] = {
+                    "type": param_info["type"],
+                    "description": param_info["description"]
+                }
         else:
-            # Get model from env variable if available
-            env_model = os.environ.get("OPENROUTER_MODEL")
-            if env_model:
-                # Check if it's a model that needs OpenRouter but we can't use it directly
-                if env_model.startswith("anthropic/") and not self.can_use_openai_client:
-                    logger.warning(f"Cannot use {env_model} directly without openai package, falling back to free model")
-                    self.model_id = "HuggingFaceH4/zephyr-7b-beta"
-                else:
-                    self.model_id = env_model
-            elif self.openrouter_api_key:
-                # If using OpenRouter, use Llama as default (instead of Claude)
-                if self.can_use_openai_client:
-                    self.model_id = "meta-llama/Llama-3.1-8B-Instruct"
-                else:
-                    # Can't use anthropic models without openai package
-                    self.model_id = "meta-llama/Llama-3.1-8B-Instruct"
-            elif self.hf_token:
-                # If HF token is available, can use Llama model
-                self.model_id = "meta-llama/Llama-3.1-8B-Instruct"
-            else:
-                # If no tokens, use a free model that doesn't require auth
-                logger.warning("No API keys provided, using a free model")
-                self.model_id = "HuggingFaceH4/zephyr-7b-beta"
-            
-        self.max_steps = max_steps
-        self.planning_interval = planning_interval
-        self.verbose = verbose
+            # If no properties, use the parameters directly
+            for param_name, param_info in parameters.items():
+                self.inputs[param_name] = {
+                    "type": param_info.get("type", "string"),
+                    "description": param_info.get("description", "")
+                }
         
-        # Store compatibility parameters
-        self.use_mock = use_mock
-        self.api_url = api_url
+        # Set output type (defaulting to string if not specified)
+        self.output_type = "string"
         
-        # Initialize the model
-        self.model = self._initialize_model()
+        # Create a dynamic forward method with explicit parameter names
+        param_names = list(self.inputs.keys())
+        param_str = ", ".join(param_names)
+        forward_code = f"""def forward(self, {param_str}):
+            try:
+                return self._function({param_str})
+            except Exception as e:
+                logger.error(f"Error executing tool {{self.name}}: {{str(e)}}")
+                return f"Error: {{str(e)}}"
+        """
         
-        # Create the tools registry
+        # Create a new namespace and execute the forward method code
+        namespace = {}
+        exec(forward_code, globals(), namespace)
+        
+        # Bind the forward method to this instance
+        self.forward = namespace["forward"].__get__(self, SmolTool)
+
+class EnhancedAgent:
+    """Enhanced agent with file handling capabilities."""
+    
+    def __init__(self, 
+                 model_id: str = "meta-llama/Llama-3.3-70B-Instruct",
+                 hf_token: Optional[str] = None,
+                 **kwargs):
+        """Initialize the enhanced agent."""
+        self.model_id = model_id
+        self.hf_token = hf_token
         self.tools = self._initialize_tools()
-        
-        # Create additional authorized imports
-        self.additional_imports = [
-            "json", "re", "datetime", "time", "math", "random", 
-            "os", "sys", "pathlib", "requests", "urllib", "string",
-            "collections", "itertools", "functools"
-        ]
-        
-        # Initialize the agent
-        self.agent = self._initialize_agent()
-        
-        logger.info(f"Enhanced agent initialized with model {self.model_id} and {len(self.tools)} tools")
-        
-    def _initialize_model(self) -> Union[HfApiModel, Any]:
-        """Initialize the model for the agent."""
-        # Force using Llama through HfApiModel
-        model = HfApiModel(
-            model_id="meta-llama/Llama-3.3-70B-Instruct",
-            token=self.hf_token  # Will use token if available, otherwise free tier
-        )
-        return model
+        self.model = self._initialize_model()
+        self.agent = self._initialize_agent(**kwargs)
     
     def _initialize_tools(self) -> List[Tool]:
         """Initialize and return the tools for the agent."""
-        from src.youtube_tool import get_youtube_tool
-        from src.duckduckgo_search_tool import get_duckduckgo_search_tool
-        from src.webpage_tool import get_webpage_tool
-        from src.python_interpreter_tool import get_python_interpreter_tool
-        
-        # Create tools list
         tools = []
+        tool_names = []
         
-        # Add the YouTube tool
-        youtube_tool = get_youtube_tool()
-        tools.append(youtube_tool)
+        # List of tool initialization functions
+        tool_functions = [
+            get_file_handler_tool,
+            get_youtube_tool,
+            get_duckduckgo_search_tool,
+            get_webpage_tool,
+            get_python_interpreter_tool
+        ]
         
-        # Add the DuckDuckGo search tool
-        search_tool = get_duckduckgo_search_tool()
-        tools.append(search_tool)
+        # Initialize each tool with proper error handling
+        for tool_func in tool_functions:
+            try:
+                # Get the tool configuration
+                tool_config = tool_func()
+                
+                # Create a SmolTool instance
+                tool = SmolTool(
+                    name=tool_config["name"],
+                    description=tool_config["description"],
+                    function=tool_config["function"],
+                    parameters=tool_config["parameters"]
+                )
+                tools.append(tool)
+                tool_names.append(tool.name)
+                logger.info(f"Successfully initialized tool: {tool.name}")
+            except Exception as e:
+                logger.error(f"Error initializing tool {tool_func.__name__}: {str(e)}")
         
-        # Add the webpage content tool
-        webpage_tool = get_webpage_tool()
-        tools.append(webpage_tool)
-        
-        # Add the Python interpreter tool
-        python_tool = get_python_interpreter_tool()
-        tools.append(python_tool)
-        
-        logger.info(f"Initialized {len(tools)} tools: {', '.join(tool.name for tool in tools)}")
-        
+        logger.info(f"Initialized {len(tools)} tools: {', '.join(tool_names)}")
         return tools
     
-    def _initialize_agent(self) -> CodeAgent:
-        """Initialize the CodeAgent with proper configuration."""
-        # Create the CodeAgent with the parameters it supports
-        agent = CodeAgent(
+    def _initialize_model(self) -> HfApiModel:
+        """Initialize the model for the agent."""
+        return HfApiModel(
+            model_id=self.model_id,
+            token=self.hf_token
+        )
+    
+    def _initialize_agent(self, **kwargs) -> CodeAgent:
+        """Initialize the CodeAgent with tools and model."""
+        return CodeAgent(
             tools=self.tools,
             model=self.model,
-            additional_authorized_imports=self.additional_imports,
-            planning_interval=self.planning_interval,
-            max_steps=self.max_steps
+            **kwargs
         )
-        
-        return agent
     
+    def run(self, task: str) -> str:
+        """Run the agent on a task."""
+        return self.agent.run(task)
+
     def __call__(self, query: str, file_path: Optional[str] = None, file_name: Optional[str] = None, task_id: Optional[str] = None) -> str:
         """
         Process a query and return a response.
@@ -184,71 +156,58 @@ class SmolAgent:  # Note: Changed from EnhancedAgent to SmolAgent for compatibil
             query: The query to process
             file_path: Optional file path for file-based queries
             file_name: Alternative file path (for compatibility)
-            task_id: Optional task ID for tracking (for compatibility)
+            task_id: Optional task ID for tracking
             
         Returns:
             The agent's response
         """
         logger.info(f"Processing query: {query}")
         
-        # For backward compatibility - map file_name to file_path if provided
-        if file_name is not None and file_path is None:
-            file_path = file_name
+        # Handle file-based query
+        file_context = ""
+        if task_id and (file_name or file_path):
+            filename = file_name or os.path.basename(file_path)
+            try:
+                # Use the file handler tool to process the file
+                file_info = self.tools[0].function(task_id=task_id, filename=filename)
+                if "error" not in file_info:
+                    file_type = file_info.get("type", "unknown")
+                    if file_type == "text":
+                        file_context = f"\nFile Content:\n```\n{file_info['content']}\n```"
+                    elif file_type == "image":
+                        file_context = f"\nImage Information: Size={file_info['size']}, Mode={file_info['mode']}, Format={file_info['format']}"
+                    elif file_type == "excel":
+                        file_context = f"\nExcel Data: {len(file_info['rows'])} rows, Columns={', '.join(file_info['columns'])}"
+                    elif file_type == "audio":
+                        file_context = f"\nAudio File: Size={file_info['size']} bytes"
+                else:
+                    logger.warning(f"Error processing file: {file_info['error']}")
+                    file_context = f"\nFile Error: {file_info['error']}"
+            except Exception as e:
+                logger.error(f"Error handling file: {str(e)}")
+                file_context = f"\nFile Processing Error: {str(e)}"
         
-        # Add file context if provided
-        if file_path and os.path.exists(file_path):
-            file_content = self._get_file_content(file_path)
-            enhanced_query = f"Query: {query}\n\nFile Context:\n```\n{file_content}\n```"
-        else:
-            enhanced_query = query
-            
-        # Add tool information to make available tools explicit
+        # Enhance query with file context and tool information
         tool_descriptions = "\n".join([f"- {tool.name}: {tool.description}" for tool in self.tools])
         enhanced_query = f"""
-Query: {enhanced_query}
+Query: {query}{file_context}
 
-IMPORTANT: You have ONLY the following tools available - do not try to use any other tools:
+Available Tools:
 {tool_descriptions}
 
-To use the tools, call them directly by name with their parameters:
-- web_search(query="your search query")
-- visit_webpage(url="https://example.com", extract_mode="structured")
-- python(code="your python code")
-- youtube(video_url="https://youtube.com/watch?v=example")
+Instructions:
+1. If working with files, use the file_handler tool first to access file contents
+2. For web searches, use the duckduckgo_search tool
+3. For webpage content, use the webpage_tool
+4. For YouTube videos, use the youtube_tool
+5. For calculations or data processing, use the python_interpreter tool
 
-DO NOT try to use non-existent functions like wiki(), search(), or answer().
+Please process the query and provide a clear, concise answer.
 """
         
         try:
-            # Check if we're using OpenAI client directly
-            if not isinstance(self.model, HfApiModel) and hasattr(self.model, "chat") and self.model_id.startswith("anthropic/"):
-                # Use OpenAI client directly
-                logger.info("Using OpenAI client directly for query")
-                # Format messages for chat completion with system message for Claude
-                messages = [
-                    {"role": "system", "content": "You are a helpful AI assistant designed to answer questions directly and concisely. Your task is to provide direct answers to questions without unnecessary explanations. When you use tools to find information, clearly state your final answer in a structured format that begins with 'Final Answer: '."},
-                    {"role": "user", "content": enhanced_query}
-                ]
-                response = self.model.chat.completions.create(
-                    model=self.model_id,
-                    messages=messages,
-                    max_tokens=4000,
-                    temperature=0.7,
-                    extra_headers={
-                        "HTTP-Referer": "https://huggingface.co",
-                        "X-Title": "HuggingFace Agent"
-                    }
-                )
-                # Extract the content from the response
-                result = response.choices[0].message.content
-                
-                # Try to extract a direct answer from Claude response
-                direct_answer = self._extract_claude_direct_answer(result)
-                if direct_answer:
-                    result = direct_answer
-            else:
-                # Use smolagents CodeAgent
-                result = self.agent.run(enhanced_query)
+            # Use the agent to process the query
+            result = self.agent.run(enhanced_query)
             
             # Post-process the result
             processed_result = self._post_process_result(result, query)
@@ -258,95 +217,24 @@ DO NOT try to use non-existent functions like wiki(), search(), or answer().
             logger.error(f"Error processing query: {str(e)}")
             return f"I encountered an error: {str(e)}. Please try again."
     
-    def _get_file_content(self, file_path: str) -> str:
-        """Get the content of a file."""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return f.read()
-        except Exception as e:
-            logger.error(f"Error reading file {file_path}: {str(e)}")
-            return f"Error reading file: {str(e)}"
-    
     def _post_process_result(self, result: str, original_query: str) -> str:
-        """
-        Post-process the result from the agent.
-        
-        Args:
-            result: The raw result from the agent
-            original_query: The original query
-            
-        Returns:
-            The processed result
-        """
-        # Handle non-string results (e.g., numbers)
+        """Post-process the result from the agent."""
         if not isinstance(result, str):
             return str(result)
             
-        # Handle empty results
         if not result or result.isspace():
-            logger.warning("Empty result from model")
             return "The model did not provide a response."
-        
-        # Check for specific known-answer questions to provide direct responses
-        # Capital of France fallback
-        if ('capital' in original_query.lower() and 'france' in original_query.lower()):
-            return "Paris"
-            
-        # Handle chess-related queries
-        if 'chess' in original_query.lower():
-            # Extract chess moves using regex
-            move_pattern = r'\b[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?\+?\#?\b'
-            moves = re.findall(move_pattern, result)
-            if moves:
-                return moves[0]  # Return the first valid move found
-        
-        # Handle numeric answers
-        if original_query.lower().startswith(('how many', 'what number', 'count')):
-            # Try to extract numbers
-            numbers = re.findall(r'\d+', result)
-            if numbers:
-                return numbers[0]  # Return the first number found
-        
-        # Handle yes/no questions
-        if original_query.lower().startswith(('is', 'are', 'does', 'do', 'can', 'will', 'should')):
-            result_lower = result.lower()
-            if 'yes' in result_lower:
-                return 'Yes'
-            elif 'no' in result_lower:
-                return 'No'
         
         # Extract final answer if present
         final_answer_match = re.search(r'(?:Final Answer|Answer):\s*(.+?)(?:\n|$)', result, re.IGNORECASE | re.DOTALL)
         if final_answer_match:
             return final_answer_match.group(1).strip()
         
-        # If no specific format is detected, return the full result
-        return result.strip()
-    
-    def _extract_claude_direct_answer(self, result: str) -> str:
-        """
-        Extract a direct answer from Claude's response.
+        # Handle specific query types
+        if 'chess' in original_query.lower():
+            move_pattern = r'\b[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?\+?\#?\b'
+            moves = re.findall(move_pattern, result)
+            if moves:
+                return moves[0]
         
-        Args:
-            result: The raw response from Claude
-            
-        Returns:
-            The extracted direct answer or None if not found
-        """
-        # Look for "Final Answer:" format
-        final_answer_match = re.search(r'Final Answer:\s*(.+?)(?:\n|$)', result, re.IGNORECASE | re.DOTALL)
-        if final_answer_match:
-            return final_answer_match.group(1).strip()
-        
-        # Look for numbered response format
-        numbered_match = re.search(r'\d+\.\s*(.+?)(?:\n|$)', result)
-        if numbered_match:
-            return numbered_match.group(1).strip()
-        
-        # Look for direct statement format
-        direct_match = re.search(r'^(?:The answer is|I found that|According to|Based on)\s+(.+?)(?:\.|$)', result, re.IGNORECASE | re.MULTILINE)
-        if direct_match:
-            return direct_match.group(1).strip()
-        
-        # If no specific format is found, return None to use the full response
-        return None 
+        return result.strip() 

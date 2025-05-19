@@ -1,7 +1,11 @@
-requests>=2.30.0
+requests>=2.31.0
+pillow>=10.0.0
+pandas>=2.0.0
+openpyxl>=3.1.0  # For Excel file support
 python-dotenv>=1.0.0
-smolagents==0.1.11
+smolagents>=0.1.0
 Pillow>=10.0.0  # Optional, for image file analysis
 beautifulsoup4>=4.9.3  # For better webpage content extraction
 gradio==4.12.0
 openai>=1.0.0  # For OpenRouter API access
+mutagen>=1.47.0  # For audio file metadata

@@ -51,6 +51,7 @@ class SmolAgent:
                  hf_token: Optional[str] = None, 
                  use_mock: bool = False,
                  model_name: Optional[str] = None,
+                 file_handler: Optional[Any] = None,
                  **kwargs):
         """
         Initialize the SmolAgent adapter.
@@ -59,6 +60,7 @@ class SmolAgent:
             hf_token: The Hugging Face token (not used, kept for compatibility)
             use_mock: Whether to use a mock model (not used, kept for compatibility)
             model_name: The model name (will be mapped to appropriate API model)
+            file_handler: Optional FileHandlerTool instance for handling files
             **kwargs: Additional arguments passed to the real implementation
         """
         # Map model names from original implementation to new implementations
@@ -87,6 +89,9 @@ class SmolAgent:
             }
         }
         
+        # Store the file handler
+        self.file_handler = file_handler
+        
         # Determine which implementation is being used
         implementation = os.environ.get("SMOL_IMPLEMENTATION", "openrouter")
         
@@ -107,13 +112,15 @@ class SmolAgent:
             # OpenRouter implementation
             self.agent = BaseSmolAgent(
                 openrouter_api_key=os.environ.get("OPENROUTER_API_KEY"),
-                model_id=mapped_model
+                model_id=mapped_model,
+                file_handler=file_handler
             )
         else:
             # OpenAI implementation
             self.agent = BaseSmolAgent(
                 openai_api_key=os.environ.get("OPENAI_API_KEY"),
-                model_id=mapped_model
+                model_id=mapped_model,
+                file_handler=file_handler
             )
         
         # Store original parameters for compatibility
@@ -138,6 +145,11 @@ class SmolAgent:
         if file_name is not None and file_path is None:
             file_path = file_name
             
+        # If we have a file handler and a file path, process the file first
+        if self.file_handler and file_path:
+            file_info = self.file_handler.read_file(task_id, file_path)
+            return self.agent(question, file_info=file_info, task_id=task_id)
+        
         return self.agent(question, file_path, task_id)
     
     def postprocess_answer(self, answer: str, question_type: str, question: str) -> str:

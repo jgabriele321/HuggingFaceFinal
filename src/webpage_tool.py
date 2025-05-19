@@ -181,9 +181,29 @@ class WebpageTool(Tool):
         
         return f"Structured data from {url}:\n\n{json.dumps(structured_data, indent=2)}"
 
-def get_webpage_tool() -> WebpageTool:
-    """Create and return a webpage tool instance."""
-    return WebpageTool()
+def get_webpage_tool() -> Dict[str, Any]:
+    """Create and return a webpage tool configuration."""
+    return {
+        "name": "visit_webpage",
+        "description": "Visit a webpage and extract its content for analysis",
+        "function": WebpageTool().forward,
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "URL of the webpage to visit"
+                },
+                "extract_mode": {
+                    "type": "string",
+                    "description": "Mode for content extraction: 'full' for all content, 'summary' for a summary, or 'structured' for structured data",
+                    "enum": ["full", "summary", "structured"],
+                    "default": "full"
+                }
+            },
+            "required": ["url"]
+        }
+    }
     
 def simple_extract_content(url: str) -> str:
     """

@@ -174,6 +174,20 @@ class PythonInterpreterTool(Tool):
         return None
 
 # Function to create an instance of the tool
-def get_python_interpreter_tool() -> PythonInterpreterTool:
-    """Create and return a Python interpreter tool instance."""
-    return PythonInterpreterTool() 
+def get_python_interpreter_tool() -> Dict[str, Any]:
+    """Create and return a Python interpreter tool configuration."""
+    return {
+        "name": "python",
+        "description": "Execute Python code and return the results",
+        "function": PythonInterpreterTool().forward,
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "description": "The Python code to execute"
+                }
+            },
+            "required": ["code"]
+        }
+    } 
