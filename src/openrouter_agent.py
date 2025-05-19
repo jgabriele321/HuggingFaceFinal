@@ -293,31 +293,167 @@ class SmolAgent:
             model_id=model_id
         )
         
-        # Define tools that don't rely on problematic dependencies
-        self.tools = []
+        # Create tool registry with available tools
+        self.tool_registry = self._create_tool_registry()
         
         # Initialize smolagents if available
         try:
-            from smolagents import CodeAgent
+            from smolagents import CodeAgent, PythonInterpreterTool, FinalAnswerTool
             
+            # Create properly configured Python interpreter with explicit authorized imports
+            self.authorized_imports = [
+                "os", "json", "re", "math", "time", "pathlib", "random",
+                "collections", "itertools", "functools", "string", "datetime",
+                "base64", "io", "PIL", "requests"
+            ]
+            
+            python_tool = PythonInterpreterTool(
+                authorized_imports=self.authorized_imports
+            )
+            
+            # Define available tools
+            self.tools = [
+                python_tool,
+                FinalAnswerTool()
+            ]
+            
+            # Generate tool documentation for agent prompt
+            tool_docs = self._generate_tool_documentation()
+            
+            # Initialize the agent with proper configuration
             self.agent = CodeAgent(
                 tools=self.tools,
                 model=self.model,
                 verbosity_level=1,
                 max_steps=5,
                 stream_outputs=False,
-                additional_authorized_imports=[
-                    "os", "json", "re", "math", "time", "pathlib",
-                    "PIL", "io", "base64", "requests"
-                ]
+                additional_authorized_imports=self.authorized_imports,
+                system_prompt=f"You have access to the following tools:\n{tool_docs}\n\nWhen using tools, verify they exist before attempting to use them."
             )
             self.use_agent = True
-            logger.info("Initialized with smolagents CodeAgent")
+            logger.info("Initialized with smolagents CodeAgent and explicit tool configuration")
         except ImportError:
             self.agent = None
             self.use_agent = False
             logger.info("smolagents not available, falling back to direct model use")
+
+    def _create_tool_registry(self):
+        """
+        Create a registry of available tools with descriptions.
+        
+        Returns:
+            Dictionary mapping tool names to descriptions
+        """
+        return {
+            "python": "Execute Python code with access to a restricted set of libraries",
+            "final_answer": "Submit your final answer when task is complete",
+            "file_reader": "Read the contents of a file at a specified path",
+            "validate_tool": "Check if a tool exists and is available for use"
+        }
     
+    def _generate_tool_documentation(self):
+        """
+        Generate formatted documentation for available tools.
+        
+        Returns:
+            Formatted string with tool documentation
+        """
+        docs = []
+        
+        # Add authorized imports documentation
+        docs.append("PYTHON TOOL:")
+        docs.append("  - Execute Python code with the following authorized imports:")
+        for imp in sorted(self.authorized_imports):
+            docs.append(f"    * {imp}")
+        
+        # Add other tool documentation
+        docs.append("\nOTHER TOOLS:")
+        for name, desc in self.tool_registry.items():
+            if name != "python":
+                docs.append(f"  - {name}: {desc}")
+        
+        return "\n".join(docs)
+    
+    def validate_tool_usage(self, tool_name, code=None):
+        """
+        Validate if a tool can be used before attempting it.
+        
+        Args:
+            tool_name: Name of the tool to validate
+            code: Optional code to check for unauthorized imports
+            
+        Returns:
+            Tuple of (valid, message)
+        """
+        # Check if tool exists
+        if tool_name not in self.tool_registry:
+            return False, f"Tool '{tool_name}' does not exist. Available tools: {', '.join(self.tool_registry.keys())}"
+        
+        # For Python tool, check imports
+        if tool_name == "python" and code:
+            import re
+            import_pattern = r'import\s+([a-zA-Z0-9_.]+)'
+            imports = re.findall(import_pattern, code)
+            
+            for imp in imports:
+                if imp not in self.authorized_imports:
+                    return False, f"Import '{imp}' not authorized. Use only: {', '.join(sorted(self.authorized_imports))}"
+        
+        return True, "Tool usage valid"
+    
+    def execute_with_fallback(self, prompt, tool_name=None, attempt=0):
+        """
+        Execute a task with fallback mechanisms if initial attempt fails.
+        
+        Args:
+            prompt: The prompt to process
+            tool_name: Optional tool to try first
+            attempt: Current attempt number (for tracking retries)
+            
+        Returns:
+            Result of execution
+        """
+        try:
+            # Try main approach with specified tool
+            if tool_name and self.use_agent:
+                # Validate tool before use
+                valid, message = self.validate_tool_usage(tool_name)
+                if not valid:
+                    logger.warning(f"Tool validation failed: {message}")
+                    # Fall back to agent without specific tool directive
+                    return self.agent.run(prompt)
+                else:
+                    # Add tool directive to prompt
+                    tool_prompt = f"Use the {tool_name} tool to answer: {prompt}"
+                    return self.agent.run(tool_prompt)
+            
+            # Default approach: use agent if available
+            if self.use_agent:
+                return self.agent.run(prompt)
+            else:
+                # Fall back to direct model use
+                messages = [{"role": "user", "content": prompt}]
+                return self.model(messages)
+                
+        except Exception as e:
+            logger.warning(f"Error in execution (attempt {attempt+1}): {str(e)}")
+            
+            # If still have retries left, try again with simplified approach
+            if attempt < 2:
+                # For retry 1: Try with simpler prompt
+                if attempt == 0:
+                    simplified_prompt = f"Please answer this question simply: {prompt}"
+                # For retry 2: Try with most basic approach
+                else:
+                    simplified_prompt = f"Answer briefly: {prompt}"
+                
+                # Sleep with exponential backoff before retry
+                time.sleep(2 ** attempt)
+                return self.execute_with_fallback(simplified_prompt, None, attempt + 1)
+            
+            # If all retries failed, return error message
+            return "I encountered an error processing your request. Please try a simpler query."
+
     def __call__(self, question: str, file_path: Optional[str] = None, task_id: str = None) -> str:
         """
         Process a question and return an answer.
@@ -346,64 +482,52 @@ class SmolAgent:
                 image_info = FileHandler.handle_image(file_path)
                 prompt += f"\n\n{image_info}"
         
-        # Process with error handling
-        for attempt in range(3):  # Try up to 3 times
-            try:
-                start_time = time.time()
-                
-                if self.use_agent and self.agent:
-                    # Use smolagents CodeAgent when available
-                    raw_answer = self.agent.run(prompt)
-                    # Format the response correctly for CodeAgent
-                    raw_answer = self._format_response_for_code_agent(prompt, raw_answer)
-                else:
-                    # Direct model use when CodeAgent not available
-                    messages = [{"role": "user", "content": prompt}]
-                    response = self.model(messages)
-                    raw_answer = str(response)
-                
-                elapsed_time = time.time() - start_time
-                logger.info(f"Processing completed in {elapsed_time:.2f} seconds")
-                
-                return self._postprocess_answer(raw_answer, question)
-                
-            except Exception as e:
-                logger.error(f"Error processing question (attempt {attempt+1}/3): {str(e)}")
-                if attempt < 2:
-                    time.sleep(2 ** attempt)  # Exponential backoff
-                else:
-                    return "I encountered an error while processing your question. Please try again or simplify your query."
-    
-    def _format_response_for_code_agent(self, prompt, response):
-        """Format response to be compatible with CodeAgent's expectations."""
-        # Get the content from the response
-        if hasattr(response, 'content'):
-            content = response.content
-        else:
-            content = str(response)
+        # Determine most appropriate tool based on question type
+        tool_name = self._select_appropriate_tool(question)
+        logger.info(f"Selected tool: {tool_name}")
         
-        # For chess-related questions, make sure the move is clearly indicated
-        if "chess" in prompt.lower() and "best move" in prompt.lower():
-            if "e4" in content or any(move in content.lower() for move in ["nf3", "d4", "c4"]):
-                # Extract the chess move or use a default
-                move_match = re.search(r'\b([a-hA-H][1-8]|[KQRBNP][a-h][1-8]|O-O|O-O-O)\b', content)
-                move = move_match.group(0) if move_match else "e4"
-                return move
-        
-        # For direct model use, ensure proper code formatting for CodeAgent
-        is_code_request = any(code_term in prompt.lower() for code_term in 
-                             ["code", "function", "implementation", "script", "program"])
-        
-        if is_code_request and "```" not in content:
-            # Format as Python code block
-            return f"Thoughts: Analysis complete\nCode:\n```python\n{content}\n```"
-        
-        # If it's not a code request and not already formatted for CodeAgent
-        if not content.strip().startswith("```") and not content.strip().startswith("Thoughts:"):
-            # Standard format for non-code responses
-            return f"Thoughts: {content}\n\nNo code needed for this response."
+        # Process with robust error handling using our fallback mechanism
+        start_time = time.time()
+        try:
+            # Use the execute_with_fallback method for robust processing
+            raw_answer = self.execute_with_fallback(prompt, tool_name)
             
-        return content
+            elapsed_time = time.time() - start_time
+            logger.info(f"Processing completed in {elapsed_time:.2f} seconds")
+            
+            return self._postprocess_answer(raw_answer, question)
+            
+        except Exception as e:
+            elapsed_time = time.time() - start_time
+            logger.error(f"Fatal error processing question after {elapsed_time:.2f} seconds: {str(e)}")
+            return "I encountered a serious error while processing your request. Please try again with a simpler query."
+    
+    def _select_appropriate_tool(self, question: str) -> Optional[str]:
+        """
+        Select the most appropriate tool based on question content.
+        
+        Args:
+            question: The user's question
+            
+        Returns:
+            Name of selected tool or None if no specific tool is appropriate
+        """
+        # For code-related questions, use python tool
+        if any(term in question.lower() for term in [
+            "code", "function", "write a", "implement", "program", 
+            "script", "algorithm", "compute", "calculate"
+        ]):
+            return "python"
+            
+        # For questions that seek a definitive answer, use final_answer
+        if any(term in question.lower() for term in [
+            "what is", "who is", "when did", "where is", "how many",
+            "why does", "explain", "define", "describe"
+        ]):
+            return "final_answer"
+            
+        # Default case - no specific tool selected
+        return None
     
     def _postprocess_answer(self, answer: str, question: str) -> str:
         """Clean up and format the answer."""
