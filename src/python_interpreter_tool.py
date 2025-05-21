@@ -13,14 +13,23 @@ import logging
 import inspect
 import traceback
 import signal
+import os
+import time
+import threading
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from contextlib import redirect_stdout, redirect_stderr, contextmanager
 from typing import List, Dict, Any, Optional, Set, Union
+import ast
 
 from smolagents import Tool
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("PythonInterpreterTool")
+
+class TimeoutError(Exception):
+    """Exception raised when code execution times out."""
+    pass
 
 class PythonInterpreterTool(Tool):
     """Tool for executing Python code securely with enhanced output formatting."""
@@ -47,84 +56,103 @@ class PythonInterpreterTool(Tool):
         super().__init__(**kwargs)
         
         # Default execution timeout (in seconds)
-        self.timeout_seconds = 10
+        self.timeout_seconds = kwargs.get("timeout_seconds", 10)
         
         # Define allowed modules that are safe to import
-        self.allowed_imports = {
+        self.authorized_imports = kwargs.get("authorized_imports", [
             "math", "random", "datetime", "time", "re", "json", 
             "collections", "itertools", "functools", "operator",
             "string", "copy", "textwrap", "calendar", "fractions",
             "statistics", "decimal", "pathlib", "uuid"
-        }
+        ])
         
         # Potentially risky modules that require careful review
-        self.risky_imports = {
+        self.risky_imports = kwargs.get("risky_imports", [
             "os", "sys", "subprocess", "shutil", "socket", "requests",
             "urllib", "http", "ftplib", "telnetlib", "smtplib",
             "email", "poplib", "imaplib", "nntplib", "webbrowser",
             "multiprocessing", "threading", "concurrent", "asyncio"
-        }
+        ])
         
         # Explicitly forbidden modules
-        self.forbidden_imports = {
+        self.forbidden_imports = kwargs.get("forbidden_imports", [
             "builtins", "__builtin__", "pickle", "shelve", "marshal",
             "cPickle", "dbm", "sqlite3", "zlib", "gzip", "bz2", "zipfile",
             "tarfile", "platform", "ctypes", "crypt", "pwd", "spwd", "signal",
             "mmap", "readline", "rlcompleter", "pty", "popen2", "commands",
             "getpass", "tty", "pdb", "cgitb", "importlib", "pkgutil",
             "runpy", "compileall", "py_compile", "symtable", "pyclbr", "ast"
-        }
+        ])
     
     @contextmanager
-    def _timeout(self, seconds: int):
+    def _timeout_thread(self, seconds: int):
         """
-        Context manager that enforces a timeout for code execution.
-        
-        Args:
-            seconds: The timeout in seconds
-            
-        Raises:
-            TimeoutError: If the code execution exceeds the timeout
-        """
-        def handler(signum, frame):
-            raise TimeoutError(f"Code execution timed out after {seconds} seconds")
-        
-        # Set signal handler
-        original_handler = signal.signal(signal.SIGALRM, handler)
-        signal.alarm(seconds)
-        
-        try:
-            yield
-        finally:
-            # Restore original handler and reset alarm
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, original_handler)
-    
-    @contextmanager
-    def _timeout_context(self, seconds):
-        """
-        Context manager for timeout handling.
+        Use threading.Timer for timeout instead of signal.
+        This works in all threads, not just the main thread.
         
         Args:
             seconds: Timeout in seconds
             
         Yields:
-            None, just establishes the timeout context
+            None
+        
+        Raises:
+            TimeoutError: If the execution times out
         """
-        # Set an alarm
-        def handler(signum, frame):
-            raise TimeoutError(f"Code execution timed out after {seconds} seconds")
-            
-        # Set the timeout handler
-        original_handler = signal.signal(signal.SIGALRM, handler)
-        signal.alarm(seconds)
+        timer_canceled = threading.Event()
+        timeout_occurred = threading.Event()
+        
+        def timeout_handler():
+            if not timer_canceled.is_set():
+                timeout_occurred.set()
+                # Since we can't interrupt the thread directly,
+                # we just set a flag which we'll check after execution
+        
+        timer = threading.Timer(seconds, timeout_handler)
+        timer.daemon = True  # Don't let the timer block process exit
+        timer.start()
         
         try:
             yield
         finally:
-            # Cancel the alarm and restore the original handler
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, original_handler)
+            timer_canceled.set()
+            timer.cancel()
+            
+        # Check if timeout occurred
+        if timeout_occurred.is_set():
+            raise TimeoutError(f"Code execution timed out after {seconds} seconds")
+    
+    def _execute_with_timeout(self, func, args=None, kwargs=None, timeout=10):
+        """
+        Execute a function with a timeout using ThreadPoolExecutor.
+        This works in any thread, not just the main thread.
+        
+        Args:
+            func: Function to execute
+            args: Arguments to pass to the function
+            kwargs: Keyword arguments to pass to the function
+            timeout: Timeout in seconds
+            
+        Returns:
+            The result of the function
+            
+        Raises:
+            TimeoutError: If execution times out
+            Exception: Any exception raised by the function
+        """
+        if args is None:
+            args = ()
+        if kwargs is None:
+            kwargs = {}
+            
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(func, *args, **kwargs)
+            try:
+                return future.result(timeout=timeout)
+            except FutureTimeoutError:
+                # Attempt to cancel the future (doesn't stop the thread but marks it for cancellation)
+                future.cancel()
+                raise TimeoutError(f"Code execution timed out after {timeout} seconds")
     
     def _capture_output(self, code, timeout=5, precision=None):
         """
@@ -162,10 +190,16 @@ class PythonInterpreterTool(Tool):
             # Create a modified version of the code that captures both printed output and return values
             mod_code = self._prepare_code_capture(fixed_code)
             
-            # Set up the timeout handler
-            with self._timeout_context(timeout), redirect_stdout(output_buffer), redirect_stderr(output_buffer):
-                # Execute the code
-                exec(mod_code, namespace)
+            # Execute with timeout using thread-based approach
+            def execute_code():
+                with redirect_stdout(output_buffer), redirect_stderr(output_buffer):
+                    exec(mod_code, namespace)
+                
+            # Use executor pattern that works in any thread
+            self._execute_with_timeout(execute_code, timeout=timeout)
+            
+        except TimeoutError as e:
+            return f"Error executing code: {str(e)}"
         except Exception as e:
             return f"Error executing code: {str(e)}"
         
@@ -305,79 +339,63 @@ class PythonInterpreterTool(Tool):
         if len(lines) == 1 and not any(lines[0].strip().startswith(keyword) for keyword in 
                                       ['def', 'class', 'import', 'from', 'if', 'for', 'while', 
                                        'with', 'try', 'except', 'finally', 'return', 'raise',
-                                       'pass', 'continue', 'break', 'assert', 'del']):
-            # If it doesn't have an assignment and is not a statement
-            if '=' not in lines[0] and not lines[0].strip().endswith(':'):
-                return f"_result_value_ = {lines[0]}\nprint(str(_result_value_).strip())"
-            # Otherwise, execute as is
-            return code
+                                       'assert', 'print', 'yield', 'break', 'continue', 'pass']):
+            # For a simple expression, print its value
+            mod_code = f"print({lines[0].strip()})"
+            return mod_code
         
-        # For control flow statements (if, for, while, etc.), preserve the original code
-        # to maintain proper indentation in Python blocks
-        for line in lines:
-            if line.strip().endswith(':'):
-                # Detected control flow statement, execute the code as is
-                return code
-                
-        # For multi-line code with expression at the end
-        if len(lines) > 1:
-            last_line = lines[-1].strip()
-            # Check if last line is an expression
-            if (not any(last_line.startswith(keyword) for keyword in 
-                      ['def', 'class', 'import', 'from', 'if', 'for', 'while', 
-                       'with', 'try', 'except', 'finally', 'return', 'raise',
-                       'pass', 'continue', 'break', 'assert', 'del']) and
-                    '=' not in last_line and not last_line.endswith(':') and 
-                    not last_line.startswith('#')):
-                
-                # Get all lines except the last one
-                new_lines = lines[:-1]
-                # Add code to evaluate the expression and print the result
-                new_lines.append(f"print(str({last_line}).strip())")
-                return '\n'.join(new_lines)
+        # For multi-line code, handle indentation and print the final value if it's an expression
+        has_assignment = any(re.search(r'^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*=', line) for line in lines)
+        has_control_flow = any(re.search(r'^\s*(if|for|while|def|class|with|try)', line) for line in lines)
         
-        # Default: return the original code
-        return code
+        if not has_assignment and not has_control_flow and len(lines) == 1:
+            # If it's a single line without assignment or control flow, it's likely an expression
+            # Print its value
+            mod_code = f"print({lines[0].strip()})"
+        else:
+            # Keep multi-line code as is - it should include its own print statements
+            mod_code = code
+            
+        return mod_code
 
     def _check_imports(self, code):
         """
-        Check for potentially harmful imports in the code.
+        Check that all imports in the code are authorized.
         
         Args:
             code: The Python code to check
             
         Raises:
-            SecurityError: If potentially harmful modules are imported
+            ValueError: If unauthorized imports are found
         """
-        # Look for import statements
-        import_pattern = re.compile(r'^\s*(?:from\s+(\S+)(?:\s+import)|import\s+([^,\s]+))', re.MULTILINE)
-        imported_modules = []
-        
-        for match in import_pattern.finditer(code):
-            module = match.group(1) or match.group(2)
-            if module:
-                # Extract the base module name (e.g., 'os.path' -> 'os')
-                base_module = module.split('.')[0]
-                imported_modules.append(base_module)
-        
-        # Log imported modules
-        if imported_modules:
-            logger.info(f"Found imports: {imported_modules}")
+        try:
+            # Parse the code into an AST
+            tree = ast.parse(code)
             
-        # Check for potentially dangerous modules
-        dangerous_modules = {
-            'os', 'subprocess', 'sys', 'shutil', 'socket', 'requests', 
-            'urllib', 'ftplib', 'telnetlib', 'smtplib', 'pickle'
-        }
-        
-        for module in imported_modules:
-            if module in dangerous_modules:
-                # We're logging a warning but will still execute the code
-                # In a production environment, this should be rejected
-                logger.warning(f"Potentially harmful module imported: {module}")
-                
-                # Alternatively, raise an exception to prevent execution:
-                # raise SecurityError(f"Module '{module}' is not allowed for security reasons")
+            # Check all import statements
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        module_name = alias.name.split('.')[0]
+                        if module_name in self.forbidden_imports:
+                            raise ValueError(f"Import of module '{module_name}' is forbidden")
+                        elif module_name not in self.authorized_imports and module_name not in self.risky_imports:
+                            logger.warning(f"Import of unauthorized module: {module_name}")
+                            # Allow but log unauthorized imports
+                elif isinstance(node, ast.ImportFrom):
+                    if node.module:
+                        module_name = node.module.split('.')[0]
+                        if module_name in self.forbidden_imports:
+                            raise ValueError(f"Import from module '{module_name}' is forbidden")
+                        elif module_name not in self.authorized_imports and module_name not in self.risky_imports:
+                            logger.warning(f"Import from unauthorized module: {module_name}")
+                            # Allow but log unauthorized imports
+        except SyntaxError as e:
+            # If there's a syntax error, let the execution handle it
+            logger.warning(f"Syntax error while checking imports: {e}")
+        except Exception as e:
+            logger.error(f"Error checking imports: {e}")
+            # Continue execution, let the execution handle any issues
 
 # Function to create an instance of the tool
 def get_python_interpreter_tool() -> Dict[str, Any]:

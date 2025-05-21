@@ -2635,3 +2635,213 @@ def is_palindrome(s):
 2025-05-19 14:08:52,424 - WARNING - Potentially harmful module imported: pickle
 2025-05-19 14:08:52,424 - INFO - Executing Python code of length 40
 2025-05-19 14:08:52,424 - INFO - Found imports: ['math']
+2025-05-20 07:55:32,104 - WARNING - No API keys available for answer processing
+2025-05-20 07:55:32,145 - WARNING - No API keys available for answer processing
+2025-05-20 07:55:32,145 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:55:32,145 - INFO - Answer is already concise: '0'
+2025-05-20 07:55:53,557 - WARNING - No API keys available for answer processing
+2025-05-20 07:55:53,602 - WARNING - No API keys available for answer processing
+2025-05-20 07:55:53,602 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:55:53,603 - INFO - Using pattern-based extraction
+2025-05-20 07:55:53,603 - INFO - Using pattern-based extraction
+2025-05-20 07:55:53,604 - INFO - Using enhanced numeric extraction
+2025-05-20 07:55:53,604 - INFO - Transformed answer: '71678.0...' -> '71678'
+2025-05-20 07:55:53,604 - INFO - Transformed answer: '71678.0...' -> '716.00'
+2025-05-20 07:56:15,919 - WARNING - No API keys available for answer processing
+2025-05-20 07:56:15,964 - WARNING - No API keys available for answer processing
+2025-05-20 07:56:15,964 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:56:15,965 - INFO - Using pattern-based extraction
+2025-05-20 07:56:15,965 - INFO - Using pattern-based extraction
+2025-05-20 07:56:15,965 - INFO - Using enhanced numeric extraction
+2025-05-20 07:56:15,966 - INFO - Transformed answer: '71678.0...' -> '71678'
+2025-05-20 07:56:15,966 - INFO - Transformed answer: '71678.0...' -> '716.00'
+2025-05-20 07:56:45,507 - WARNING - No API keys available for answer processing
+2025-05-20 07:56:45,556 - WARNING - No API keys available for answer processing
+2025-05-20 07:56:45,556 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:56:45,557 - INFO - Using pattern-based extraction
+2025-05-20 07:56:45,557 - INFO - Using pattern-based extraction
+2025-05-20 07:56:45,557 - INFO - Transformed answer: '71678.0...' -> '71678.00'
+2025-05-20 07:56:45,558 - INFO - Transformed answer: '71678.0...' -> '716.00'
+2025-05-20 07:57:08,863 - WARNING - No API keys available for answer processing
+2025-05-20 07:57:08,907 - WARNING - No API keys available for answer processing
+2025-05-20 07:57:08,907 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:57:08,908 - INFO - Using pattern-based extraction
+2025-05-20 07:57:08,908 - INFO - Using pattern-based extraction
+2025-05-20 07:57:08,909 - INFO - Transformed answer: '71678.00...' -> '71678.00'
+2025-05-20 07:57:08,909 - INFO - Transformed answer: '71678.00...' -> '716.00'
+2025-05-20 07:57:08,909 - WARNING - No API keys available for answer processing
+2025-05-20 07:57:08,909 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:57:08,909 - INFO - Using pattern-based extraction
+2025-05-20 07:57:08,909 - INFO - Using pattern-based extraction
+2025-05-20 07:57:08,909 - INFO - Transformed answer: '71678.0...' -> '71678.00'
+2025-05-20 07:57:08,909 - INFO - Transformed answer: '71678.0...' -> '716.00'
+2025-05-20 07:57:39,572 - WARNING - No API keys available for answer processing
+2025-05-20 07:57:39,621 - WARNING - No API keys available for answer processing
+2025-05-20 07:57:39,621 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:57:39,622 - INFO - Using pattern-based extraction
+2025-05-20 07:57:39,622 - INFO - Using pattern-based extraction
+2025-05-20 07:57:39,623 - INFO - Transformed answer: '71678.00...' -> '71678.00'
+2025-05-20 07:57:39,623 - INFO - Transformed answer: '71678.00...' -> '716.00'
+2025-05-20 07:57:39,623 - WARNING - No API keys available for answer processing
+2025-05-20 07:57:39,623 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:57:39,623 - INFO - Using pattern-based extraction
+2025-05-20 07:57:39,623 - INFO - Using pattern-based extraction
+2025-05-20 07:57:39,623 - INFO - Transformed answer: '71678.0...' -> '71678.00'
+2025-05-20 07:57:39,623 - INFO - Transformed answer: '71678.0...' -> '716.00'
+2025-05-20 07:58:23,310 - WARNING - No API keys available for answer processing
+2025-05-20 07:58:23,358 - WARNING - No API keys available for answer processing
+2025-05-20 07:58:23,358 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:58:23,359 - INFO - Using pattern-based extraction
+2025-05-20 07:58:23,359 - INFO - Using pattern-based extraction
+2025-05-20 07:58:23,359 - INFO - Transformed answer: '71678.00...' -> '71678.00'
+2025-05-20 07:58:23,359 - INFO - Transformed answer: '71678.00...' -> '716.00'
+2025-05-20 07:58:23,360 - WARNING - No API keys available for answer processing
+2025-05-20 07:58:23,360 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 07:58:23,360 - INFO - Using pattern-based extraction
+2025-05-20 07:58:23,360 - INFO - Using pattern-based extraction
+2025-05-20 07:58:23,360 - INFO - Transformed answer: '71678.0...' -> '71678.00'
+2025-05-20 07:58:23,360 - INFO - Transformed answer: '71678.0...' -> '716.00'
+2025-05-20 08:15:30,592 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:30,592 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:30,592 - INFO - Processing answer for question: What is the total revenue in USD?...
+2025-05-20 08:15:30,592 - INFO - Answer is already concise: '45.5'
+2025-05-20 08:15:30,593 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:30,593 - INFO - Processing answer for question: What was the total cost in dollars?...
+2025-05-20 08:15:30,593 - INFO - Answer is already concise: '230'
+2025-05-20 08:15:30,593 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:30,593 - INFO - Processing answer for question: Express your answer in USD with two decimal places....
+2025-05-20 08:15:30,593 - INFO - Answer is already concise: '71678'
+2025-05-20 08:15:30,593 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:30,593 - INFO - Processing answer for question: What is the price?...
+2025-05-20 08:15:30,593 - INFO - Using pattern-based extraction
+2025-05-20 08:15:30,593 - INFO - Using pattern-based extraction
+2025-05-20 08:15:30,595 - INFO - Using entity recognition logic
+2025-05-20 08:15:30,595 - INFO - Transformed answer: '$71678...' -> '716.00'
+2025-05-20 08:15:30,595 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:30,595 - INFO - Processing answer for question: What is the total?...
+2025-05-20 08:15:30,595 - INFO - Using pattern-based extraction
+2025-05-20 08:15:30,595 - INFO - Using pattern-based extraction
+2025-05-20 08:15:30,595 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230.00'
+2025-05-20 08:15:30,595 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230'
+2025-05-20 08:15:30,595 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:30,595 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:15:30,595 - INFO - Answer is already concise: '230'
+2025-05-20 08:15:30,595 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:31,192 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:31,243 - WARNING - No API keys available for answer processing
+2025-05-20 08:15:31,243 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:15:31,244 - INFO - Using pattern-based extraction
+2025-05-20 08:15:31,244 - INFO - Using pattern-based extraction
+2025-05-20 08:15:31,245 - INFO - Transformed answer: '71678.0...' -> '71678.00'
+2025-05-20 08:15:31,245 - INFO - Transformed answer: '71678.0...' -> '716.00'
+2025-05-20 08:16:52,926 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:52,929 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:52,929 - INFO - Processing answer for question: What is the total revenue in USD?...
+2025-05-20 08:16:52,929 - INFO - Answer is already concise: '45.5'
+2025-05-20 08:16:52,930 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:52,930 - INFO - Processing answer for question: What was the total cost in dollars?...
+2025-05-20 08:16:52,930 - INFO - Answer is already concise: '230'
+2025-05-20 08:16:52,930 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:52,930 - INFO - Processing answer for question: Express your answer in USD with two decimal places....
+2025-05-20 08:16:52,930 - INFO - Answer is already concise: '71678'
+2025-05-20 08:16:52,931 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:52,931 - INFO - Processing answer for question: What is the price?...
+2025-05-20 08:16:52,931 - INFO - Using pattern-based extraction
+2025-05-20 08:16:52,931 - INFO - Using pattern-based extraction
+2025-05-20 08:16:52,932 - INFO - Using entity recognition logic
+2025-05-20 08:16:52,932 - INFO - Transformed answer: '$71678...' -> '716.00'
+2025-05-20 08:16:52,932 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:52,932 - INFO - Processing answer for question: What is the total?...
+2025-05-20 08:16:52,932 - INFO - Using pattern-based extraction
+2025-05-20 08:16:52,932 - INFO - Using pattern-based extraction
+2025-05-20 08:16:52,932 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230.00'
+2025-05-20 08:16:52,932 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230'
+2025-05-20 08:16:52,932 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:52,932 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:16:52,932 - INFO - Answer is already concise: '230'
+2025-05-20 08:16:52,932 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:53,608 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:53,656 - WARNING - No API keys available for answer processing
+2025-05-20 08:16:53,656 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:16:53,656 - INFO - Answer is already concise: '230.0'
+2025-05-20 08:17:24,781 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:24,781 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:24,781 - INFO - Processing answer for question: What is the total revenue in USD?...
+2025-05-20 08:17:24,781 - INFO - Answer is already concise: '45.5'
+2025-05-20 08:17:24,782 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:24,782 - INFO - Processing answer for question: What was the total cost in dollars?...
+2025-05-20 08:17:24,782 - INFO - Answer is already concise: '230'
+2025-05-20 08:17:24,782 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:24,782 - INFO - Processing answer for question: Express your answer in USD with two decimal places....
+2025-05-20 08:17:24,782 - INFO - Answer is already concise: '71678'
+2025-05-20 08:17:24,782 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:24,782 - INFO - Processing answer for question: What is the price?...
+2025-05-20 08:17:24,782 - INFO - Using pattern-based extraction
+2025-05-20 08:17:24,782 - INFO - Using pattern-based extraction
+2025-05-20 08:17:24,783 - INFO - Using entity recognition logic
+2025-05-20 08:17:24,783 - INFO - Transformed answer: '$71678...' -> '716.00'
+2025-05-20 08:17:24,783 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:24,784 - INFO - Processing answer for question: What is the total?...
+2025-05-20 08:17:24,784 - INFO - Using pattern-based extraction
+2025-05-20 08:17:24,784 - INFO - Using pattern-based extraction
+2025-05-20 08:17:24,784 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230.00'
+2025-05-20 08:17:24,784 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230'
+2025-05-20 08:17:24,784 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:24,784 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:17:24,784 - INFO - Answer is already concise: '230'
+2025-05-20 08:17:24,784 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:25,367 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:25,413 - WARNING - No API keys available for answer processing
+2025-05-20 08:17:25,413 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:17:25,413 - INFO - Answer is already concise: '230.0'
+2025-05-20 08:18:01,260 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,260 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,260 - INFO - Processing answer for question: What is the total revenue in USD?...
+2025-05-20 08:18:01,260 - INFO - Answer is already concise: '45.5'
+2025-05-20 08:18:01,261 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,261 - INFO - Processing answer for question: What was the total cost in dollars?...
+2025-05-20 08:18:01,261 - INFO - Answer is already concise: '230'
+2025-05-20 08:18:01,261 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,261 - INFO - Processing answer for question: Express your answer in USD with two decimal places....
+2025-05-20 08:18:01,261 - INFO - Answer is already concise: '71678'
+2025-05-20 08:18:01,261 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,261 - INFO - Processing answer for question: What is the price?...
+2025-05-20 08:18:01,261 - INFO - Using pattern-based extraction
+2025-05-20 08:18:01,261 - INFO - Using pattern-based extraction
+2025-05-20 08:18:01,262 - INFO - Using entity recognition logic
+2025-05-20 08:18:01,263 - INFO - Transformed answer: '$71678...' -> '716.00'
+2025-05-20 08:18:01,263 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,263 - INFO - Processing answer for question: What is the total?...
+2025-05-20 08:18:01,263 - INFO - Using pattern-based extraction
+2025-05-20 08:18:01,263 - INFO - Using pattern-based extraction
+2025-05-20 08:18:01,263 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230.00'
+2025-05-20 08:18:01,263 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230'
+2025-05-20 08:18:01,263 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,263 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:18:01,263 - INFO - Answer is already concise: '230'
+2025-05-20 08:18:01,264 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,896 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,946 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:01,946 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:18:01,946 - INFO - Answer is already concise: '230.0'
+2025-05-20 08:18:31,533 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:31,533 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:31,533 - INFO - Processing answer for question: What is the total revenue in USD?...
+2025-05-20 08:18:31,533 - INFO - Answer is already concise: '45.5'
+2025-05-20 08:18:31,534 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:31,534 - INFO - Processing answer for question: What was the total cost in dollars?...
+2025-05-20 08:18:31,534 - INFO - Answer is already concise: '230'
+2025-05-20 08:18:31,534 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:31,534 - INFO - Processing answer for question: What is the total?...
+2025-05-20 08:18:31,534 - INFO - Using pattern-based extraction
+2025-05-20 08:18:31,534 - INFO - Using pattern-based extraction
+2025-05-20 08:18:31,535 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230.00'
+2025-05-20 08:18:31,535 - INFO - Transformed answer: 'The total is 230.0 dollars...' -> '230'
+2025-05-20 08:18:31,535 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:31,535 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:18:31,535 - INFO - Answer is already concise: '230'
+2025-05-20 08:18:31,535 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:32,110 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:32,154 - WARNING - No API keys available for answer processing
+2025-05-20 08:18:32,154 - INFO - Processing answer for question: What were the total sales that the chain made from food (not including drinks)? Express your answer ...
+2025-05-20 08:18:32,154 - INFO - Answer is already concise: '230.0'

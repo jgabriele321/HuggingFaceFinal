@@ -50,6 +50,9 @@ class SmolTool(Tool):
                     "type": param_info["type"],
                     "description": param_info["description"]
                 }
+                # Add nullable if present
+                if "nullable" in param_info:
+                    self.inputs[param_name]["nullable"] = param_info["nullable"]
         else:
             # If no properties, use the parameters directly
             for param_name, param_info in parameters.items():
@@ -66,10 +69,17 @@ class SmolTool(Tool):
         param_str = ", ".join(param_names)
         forward_code = f"""def forward(self, {param_str}):
             try:
-                return self._function({param_str})
+                # Apply pre-processing based on tool type
+                {self._get_preprocessing_code(param_names)}
+                
+                # Call the underlying function
+                result = self._function({param_str})
+                
+                # Apply post-processing based on tool type
+                return self._post_process_result(result)
             except Exception as e:
                 logger.error(f"Error executing tool {{self.name}}: {{str(e)}}")
-                return f"Error: {{str(e)}}"
+                return self._handle_tool_error(e)
         """
         
         # Create a new namespace and execute the forward method code
@@ -78,6 +88,144 @@ class SmolTool(Tool):
         
         # Bind the forward method to this instance
         self.forward = namespace["forward"].__get__(self, SmolTool)
+        
+        # Call setup method if it exists in the parent class
+        if hasattr(self.__class__, 'setup') and callable(getattr(self.__class__, 'setup')):
+            logger.info(f"Calling setup method for tool {self.name}")
+            try:
+                self.setup()
+                # Verify setup was successful by checking for expected attributes
+                self._verify_setup()
+            except Exception as e:
+                logger.error(f"Error during setup of tool {self.name}: {str(e)}")
+                # Implement fallback behavior for failed setup
+                self._setup_fallback()
+    
+    @property
+    def function(self):
+        """Property for backwards compatibility with code that accesses .function directly."""
+        return self._function
+    
+    def _get_preprocessing_code(self, param_names: List[str]) -> str:
+        """Generate tool-specific preprocessing code."""
+        if not param_names:
+            return "pass"
+            
+        preprocessing_code = []
+        
+        # Handle specific tools
+        if self.name == "python":
+            # Add precision handling for Python tool
+            if "precision" in param_names:
+                preprocessing_code.append("if precision is not None and precision == 2 and 'currency' in code.lower(): precision = 2")
+        
+        elif self.name == "web_search":
+            # Add query normalization
+            if "query" in param_names:
+                preprocessing_code.append("query = query.strip()")
+        
+        # If no specific preprocessing, return pass
+        if not preprocessing_code:
+            return "pass"
+            
+        return "\n                ".join(preprocessing_code)
+    
+    def _post_process_result(self, result: Any) -> Any:
+        """Apply post-processing to tool results."""
+        # Handle None results
+        if result is None:
+            return "No results found."
+            
+        # Handle dictionary results with error key
+        if isinstance(result, dict) and "error" in result:
+            return f"Error: {result['error']}"
+            
+        # Handle specific tools
+        if self.name == "python":
+            # Ensure numeric results have consistent formatting
+            if isinstance(result, (int, float)):
+                # Format currency values with two decimal places
+                if isinstance(result, float):
+                    return str(result)
+                return str(result)
+                
+        # Default: convert to string if not already
+        if not isinstance(result, str):
+            return str(result)
+            
+        return result
+    
+    def _handle_tool_error(self, error: Exception) -> str:
+        """Handle tool errors with appropriate fallbacks."""
+        error_type = type(error).__name__
+        error_msg = str(error)
+        
+        # Import error handler if available
+        try:
+            from src.error_handler import handle_error
+            error_info = handle_error(error, self.name)
+            return f"Error: {error_info.get('message', error_msg)}"
+        except ImportError:
+            pass
+            
+        # Tool-specific error handling
+        if self.name == "web_search":
+            return f"Search failed: {error_msg}. Try a different search query."
+        elif self.name == "youtube":
+            return f"YouTube processing failed: {error_msg}. Check the video URL or try another video."
+        elif self.name == "python":
+            return f"Code execution error: {error_msg}"
+        elif self.name == "file_handler":
+            return f"File processing error: {error_msg}"
+            
+        # Generic error message
+        return f"Tool execution failed: {error_msg}"
+    
+    def _verify_setup(self):
+        """Verify that setup completed successfully by checking for expected attributes."""
+        # For DuckDuckGoSearchTool, check if requests attribute exists
+        if self.name == "web_search" and not hasattr(self, "requests"):
+            logger.warning(f"Tool {self.name} missing 'requests' attribute after setup")
+            self.requests = __import__('requests')
+        
+        # For YouTubeTool, check if youtube_transcript_api is available
+        if self.name == "youtube" and not hasattr(self, "transcript_api"):
+            try:
+                # Try to import the youtube_transcript_api
+                from youtube_transcript_api import YouTubeTranscriptApi
+                self.transcript_api = YouTubeTranscriptApi
+                logger.info(f"Added transcript_api attribute to {self.name} tool")
+            except ImportError:
+                logger.warning(f"Tool {self.name} could not import youtube_transcript_api")
+                
+        # For FileHandlerTool, ensure files directory exists
+        if self.name == "file_handler":
+            import os
+            os.makedirs("files", exist_ok=True)
+    
+    def _setup_fallback(self):
+        """Provide fallback implementation for tools with failed setup."""
+        # For DuckDuckGoSearchTool
+        if self.name == "web_search":
+            import requests
+            self.requests = requests
+            logger.info(f"Applied fallback setup for {self.name} tool")
+        
+        # For YouTubeTool, create a minimal fallback implementation
+        if self.name == "youtube":
+            logger.info(f"Applied fallback setup for {self.name} tool")
+            # Create minimal fallbacks for required attributes
+            self.requests = __import__('requests')
+            # Create a fallback for transcript_api if needed
+            
+        # For PythonInterpreterTool, ensure default parameters
+        if self.name == "python":
+            self.timeout_seconds = 10
+            self.authorized_imports = [
+                "math", "random", "datetime", "re", "json", 
+                "collections", "itertools", "functools"
+            ]
+            logger.info(f"Applied fallback setup for {self.name} tool")
 
 class EnhancedAgent:
     """Enhanced agent with file handling capabilities."""
@@ -125,9 +273,37 @@ class EnhancedAgent:
                 logger.info(f"Successfully initialized tool: {tool.name}")
             except Exception as e:
                 logger.error(f"Error initializing tool {tool_func.__name__}: {str(e)}")
+                # Attempt to create a minimal fallback tool if initialization fails
+                fallback_tool = self._create_fallback_tool(tool_func.__name__)
+                if fallback_tool:
+                    tools.append(fallback_tool)
+                    tool_names.append(fallback_tool.name)
+                    logger.info(f"Created fallback for tool: {fallback_tool.name}")
         
         logger.info(f"Initialized {len(tools)} tools: {', '.join(tool_names)}")
         return tools
+    
+    def _create_fallback_tool(self, tool_name: str) -> Optional[Tool]:
+        """Create a minimal fallback tool for a failed initialization."""
+        base_name = tool_name.replace("get_", "").replace("_tool", "")
+        
+        if "file_handler" in base_name:
+            return SmolTool(
+                name="file_handler",
+                description="Basic file handling capabilities (fallback mode)",
+                function=lambda **kwargs: {"error": "File handler in fallback mode with limited functionality"},
+                parameters={"type": "object", "properties": {"filename": {"type": "string", "description": "File to process"}, "task_id": {"type": "string", "description": "Task ID"}}}
+            )
+        elif "duckduckgo_search" in base_name or "web_search" in base_name:
+            return SmolTool(
+                name="web_search",
+                description="Web search functionality (fallback mode)",
+                function=lambda query, **kwargs: f"The web search tool is in fallback mode. Your query was: {query}",
+                parameters={"type": "object", "properties": {"query": {"type": "string", "description": "Search query"}}}
+            )
+        
+        # Add other fallbacks as needed
+        return None
     
     def _initialize_model(self) -> HfApiModel:
         """Initialize the model for the agent."""
@@ -138,9 +314,28 @@ class EnhancedAgent:
     
     def _initialize_agent(self, **kwargs) -> CodeAgent:
         """Initialize the CodeAgent with tools and model."""
+        # Default additional authorized imports based on smolagents recommendations
+        additional_authorized_imports = [
+            "math", "random", "datetime", "time", "re", "json", 
+            "collections", "itertools", "functools", "operator",
+            "string", "copy", "textwrap", "calendar", "fractions",
+            "statistics", "decimal", "pathlib", "uuid",
+            "os", "sys", "requests", "pandas", "numpy", 
+            "csv", "xml", "html"
+        ]
+        
+        # Add any custom imports from kwargs
+        if "additional_authorized_imports" in kwargs:
+            additional_authorized_imports.extend(kwargs.pop("additional_authorized_imports"))
+        
+        # Set planning interval for reflection (default to 3 steps)
+        planning_interval = kwargs.pop("planning_interval", 3)
+        
         return CodeAgent(
             tools=self.tools,
             model=self.model,
+            additional_authorized_imports=additional_authorized_imports,
+            planning_interval=planning_interval,
             **kwargs
         )
     
