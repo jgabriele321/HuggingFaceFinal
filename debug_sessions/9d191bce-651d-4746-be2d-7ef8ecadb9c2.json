@@ -1,0 +1,69 @@
+{
+  "session_id": "9d191bce-651d-4746-be2d-7ef8ecadb9c2",
+  "question": "Examine the video at https://www.youtube.com/watch?v=1htKBjuUWec.\n\nWhat does Teal'c say in response to the question \"Isn't that hot?\"",
+  "original_answer": "Unable to find Teal'c's response",
+  "verbose_answer": "Unable to find Teal'c's response",
+  "final_answer": "Unable to find Teal'c's response",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "Unable to find Teal'c's response",
+      "output": "Unable to find Teal'c's response",
+      "metadata": {
+        "question": "Examine the video at https://www.youtube.com/watch?v=1htKBjuUWec.\n\nWhat does Teal'c say in response to the question \"Isn't that hot?\"",
+        "timestamp": "2025-05-22T12:52:02.388445"
+      },
+      "timestamp": "2025-05-22T12:52:02.388459"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "Unable to find Teal'c's response",
+      "output": "Unable to find Teal'c's response",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T12:52:02.388526"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "Unable to find Teal'c's response",
+      "output": "Unable to find Teal'c's response",
+      "metadata": {
+        "numeric_answer": false,
+        "list_answer": false,
+        "alphabetical": false,
+        "comma_separated": false,
+        "exact_match": false,
+        "yes_no_answer": false,
+        "name_extraction": false,
+        "location_extraction": false,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "",
+        "question_type": "information",
+        "expected_length": "medium"
+      },
+      "timestamp": "2025-05-22T12:52:02.388602"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "Unable to find Teal'c's response",
+      "output": "Unable to find Teal'c's response",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:52:02.388612"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "Unable to find Teal'c's response",
+      "output": "Unable to find Teal'c's response",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T12:52:02.388615"
+    }
+  ],
+  "timestamp": "2025-05-22T12:52:02.389051"
+}

@@ -398,25 +398,6 @@ class PythonInterpreterTool(Tool):
             # Continue execution, let the execution handle any issues
 
 # Function to create an instance of the tool
-def get_python_interpreter_tool() -> Dict[str, Any]:
-    """Create and return an enhanced Python interpreter tool configuration."""
-    return {
-        "name": "python",
-        "description": "Execute Python code and return the results with precise formatting",
-        "function": PythonInterpreterTool().forward,
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "description": "The Python code to execute"
-                },
-                "precision": {
-                    "type": "integer",
-                    "description": "Optional decimal places for numeric outputs",
-                    "nullable": True
-                }
-            },
-            "required": ["code"]
-        }
-    } 
+def get_python_interpreter_tool():
+    """Create and return an enhanced Python interpreter tool instance."""
+    return PythonInterpreterTool() 

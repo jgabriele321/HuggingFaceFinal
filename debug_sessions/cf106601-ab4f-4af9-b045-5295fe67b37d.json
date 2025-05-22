@@ -1,0 +1,69 @@
+{
+  "session_id": "cf106601-ab4f-4af9-b045-5295fe67b37d",
+  "question": "What country had the least number of athletes at the 1928 Summer Olympics? If there's a tie for a number of athletes, return the first in alphabetical order. Give the IOC country code as your answer.",
+  "original_answer": "Unknown",
+  "verbose_answer": "Unknown",
+  "final_answer": "Unknown",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {
+        "question": "What country had the least number of athletes at the 1928 Summer Olympics? If there's a tie for a number of athletes, return the first in alphabetical order. Give the IOC country code as your answer.",
+        "timestamp": "2025-05-22T12:55:09.642932"
+      },
+      "timestamp": "2025-05-22T12:55:09.642977"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T12:55:09.643143"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {
+        "numeric_answer": true,
+        "list_answer": false,
+        "alphabetical": true,
+        "comma_separated": false,
+        "exact_match": false,
+        "yes_no_answer": false,
+        "name_extraction": false,
+        "location_extraction": true,
+        "code_answer": true,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "athletes at the 1928 summer olympics",
+        "question_type": "information",
+        "expected_length": "short"
+      },
+      "timestamp": "2025-05-22T12:55:09.643482"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:55:09.643523"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T12:55:09.643564"
+    }
+  ],
+  "timestamp": "2025-05-22T12:55:09.645401"
+}

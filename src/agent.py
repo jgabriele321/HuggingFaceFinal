@@ -31,6 +31,10 @@ from src.webpage_tool import get_webpage_tool
 from src.python_interpreter_tool import get_python_interpreter_tool
 from src.file_handler_tool import get_file_handler_tool
 
+# Import final answer processor - Replace with improved processor
+# from src.final_answer_processor import FinalAnswerProcessor
+from src.improved_answer_processor import ImprovedAnswerProcessor
+
 class SmolTool(Tool):
     """Custom Tool class that ensures proper attribute initialization."""
     
@@ -240,6 +244,10 @@ class EnhancedAgent:
         self.tools = self._initialize_tools()
         self.model = self._initialize_model()
         self.agent = self._initialize_agent(**kwargs)
+        
+        # Initialize answer processor - Use the improved processor
+        # self.answer_processor = FinalAnswerProcessor()
+        self.answer_processor = ImprovedAnswerProcessor()
     
     def _initialize_tools(self) -> List[Tool]:
         """Initialize and return the tools for the agent."""
@@ -406,7 +414,11 @@ Please process the query and provide a clear, concise answer.
             
             # Post-process the result
             processed_result = self._post_process_result(result, query)
-            return processed_result
+            
+            # Process the result with the improved processor
+            processed_answer = self.answer_processor.process_answer(query, processed_result, task_id)
+            
+            return processed_answer
             
         except Exception as e:
             logger.error(f"Error processing query: {str(e)}")

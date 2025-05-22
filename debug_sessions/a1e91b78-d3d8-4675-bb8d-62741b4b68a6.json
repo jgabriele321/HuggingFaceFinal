@@ -1,0 +1,69 @@
+{
+  "session_id": "a1e91b78-d3d8-4675-bb8d-62741b4b68a6",
+  "question": "In the video https://www.youtube.com/watch?v=L1vXCYZAYYM, what is the highest number of bird species to be on camera simultaneously?",
+  "original_answer": "Unable to determine",
+  "verbose_answer": "Unable to determine",
+  "final_answer": "Unable to determine",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "Unable to determine",
+      "output": "Unable to determine",
+      "metadata": {
+        "question": "In the video https://www.youtube.com/watch?v=L1vXCYZAYYM, what is the highest number of bird species to be on camera simultaneously?",
+        "timestamp": "2025-05-22T13:54:54.956047"
+      },
+      "timestamp": "2025-05-22T13:54:54.956054"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "Unable to determine",
+      "output": "Unable to determine",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T13:54:54.956092"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "Unable to determine",
+      "output": "Unable to determine",
+      "metadata": {
+        "numeric_answer": true,
+        "list_answer": false,
+        "alphabetical": false,
+        "comma_separated": false,
+        "exact_match": false,
+        "yes_no_answer": false,
+        "name_extraction": false,
+        "location_extraction": false,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "bird species to be on camera simultaneously",
+        "question_type": "definition",
+        "expected_length": "short"
+      },
+      "timestamp": "2025-05-22T13:54:54.956184"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "Unable to determine",
+      "output": "Unable to determine",
+      "metadata": {},
+      "timestamp": "2025-05-22T13:54:54.956193"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "Unable to determine",
+      "output": "Unable to determine",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T13:54:54.956200"
+    }
+  ],
+  "timestamp": "2025-05-22T13:54:54.956375"
+}

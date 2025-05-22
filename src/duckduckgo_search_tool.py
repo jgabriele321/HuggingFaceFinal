@@ -391,8 +391,8 @@ class DuckDuckGoSearchTool(Tool):
         
         return formatted_results
 
-def get_duckduckgo_search_tool() -> Dict[str, Any]:
-    """Create and return a DuckDuckGo search tool configuration."""
+def get_duckduckgo_search_tool():
+    """Create and return a DuckDuckGo search tool instance."""
     tool = DuckDuckGoSearchTool()
     
     # Ensure the tool is properly set up
@@ -416,22 +416,4 @@ def get_duckduckgo_search_tool() -> Dict[str, Any]:
         import requests
         tool.requests = requests
     
-    return {
-        "name": tool.name,
-        "description": tool.description,
-        "function": tool.forward,
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "The search query"
-                },
-                "num_results": {
-                    "type": "integer",
-                    "description": "Number of results to return (default: 5)"
-                }
-            },
-            "required": ["query"]
-        }
-    } 
+    return tool 

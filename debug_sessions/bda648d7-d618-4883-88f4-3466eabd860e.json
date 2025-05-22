@@ -1,0 +1,83 @@
+{
+  "session_id": "bda648d7-d618-4883-88f4-3466eabd860e",
+  "question": "Where were the Vietnamese specimens described by Kuznetzov in Nedoshivina's 2010 paper eventually deposited? Just give me the city name without abbreviations.",
+  "original_answer": "Unknown",
+  "verbose_answer": "Unknown",
+  "final_answer": "Unknown",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {
+        "question": "Where were the Vietnamese specimens described by Kuznetzov in Nedoshivina's 2010 paper eventually deposited? Just give me the city name without abbreviations.",
+        "timestamp": "2025-05-22T12:54:48.491495"
+      },
+      "timestamp": "2025-05-22T12:54:48.491515"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T12:54:48.491644"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {
+        "numeric_answer": false,
+        "list_answer": false,
+        "alphabetical": false,
+        "comma_separated": false,
+        "exact_match": true,
+        "yes_no_answer": false,
+        "name_extraction": true,
+        "location_extraction": true,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "",
+        "question_type": "information",
+        "expected_length": "medium"
+      },
+      "timestamp": "2025-05-22T12:54:48.491847"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:54:48.491878"
+    },
+    {
+      "stage": "Entity Extraction",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:54:48.491958"
+    },
+    {
+      "stage": "Exact Match Processing",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:54:48.491964"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "Unknown",
+      "output": "Unknown",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T12:54:48.491968"
+    }
+  ],
+  "timestamp": "2025-05-22T12:54:48.493108"
+}

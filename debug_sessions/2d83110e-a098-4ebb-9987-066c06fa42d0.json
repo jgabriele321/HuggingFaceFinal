@@ -1,0 +1,69 @@
+{
+  "session_id": "2d83110e-a098-4ebb-9987-066c06fa42d0",
+  "question": ".rewsna eht sa \"tfel\" drow eht fo etisoppo eht etirw ,ecnetnes siht dnatsrednu uoy fI",
+  "original_answer": "right",
+  "verbose_answer": "right",
+  "final_answer": "right",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "right",
+      "output": "right",
+      "metadata": {
+        "question": ".rewsna eht sa \"tfel\" drow eht fo etisoppo eht etirw ,ecnetnes siht dnatsrednu uoy fI",
+        "timestamp": "2025-05-22T13:52:57.396625"
+      },
+      "timestamp": "2025-05-22T13:52:57.396646"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "right",
+      "output": "right",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T13:52:57.396778"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "right",
+      "output": "right",
+      "metadata": {
+        "numeric_answer": false,
+        "list_answer": false,
+        "alphabetical": false,
+        "comma_separated": false,
+        "exact_match": false,
+        "yes_no_answer": false,
+        "name_extraction": false,
+        "location_extraction": false,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "",
+        "question_type": "information",
+        "expected_length": "medium"
+      },
+      "timestamp": "2025-05-22T13:52:57.397528"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "right",
+      "output": "right",
+      "metadata": {},
+      "timestamp": "2025-05-22T13:52:57.397566"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "right",
+      "output": "right",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T13:52:57.397606"
+    }
+  ],
+  "timestamp": "2025-05-22T13:52:57.399123"
+}

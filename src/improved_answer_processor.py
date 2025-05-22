@@ -58,6 +58,14 @@ class ImprovedAnswerProcessor:
         # Start debugging session
         self.debugger.start_debug_session(question, verbose_answer, question_id)
         
+        # Record the verbose answer for debugging
+        self.debugger.record_step(
+            "Verbose Answer Generation", 
+            verbose_answer, 
+            verbose_answer, 
+            metadata={"stage": "input", "is_verbose_answer": True}
+        )
+        
         # Detect answer format
         format_info = self._detect_answer_format(question)
         self.debugger.record_step(
@@ -111,7 +119,14 @@ class ImprovedAnswerProcessor:
         
         # Verify the final answer using fallback logic
         final_answer = self._verify_answer(processed_answer, verbose_answer, format_info)
-        self.debugger.record_step("Final Verification", processed_answer, final_answer)
+        
+        # Record the final answer for debugging
+        self.debugger.record_step(
+            "Final Answer", 
+            processed_answer, 
+            final_answer, 
+            metadata={"stage": "output", "is_final_answer": True}
+        )
         
         # Save debug session for analysis
         self.debugger.save_debug_session()

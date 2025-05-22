@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html><head>
+<title>Answer Processing Debug</title>
+<style>
+
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .debug-panel { border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-bottom: 20px; }
+            .step { border: 1px solid #eee; margin: 10px 0; padding: 10px; border-radius: 5px; }
+            .step h3 { margin-top: 0; color: #333; }
+            .diff { font-family: monospace; white-space: pre-wrap; margin: 10px 0; }
+            .added { background-color: #e6ffed; color: #22863a; }
+            .removed { background-color: #ffebe9; color: #cb2431; }
+            .metadata { background-color: #f6f8fa; padding: 10px; border-radius: 3px; margin-top: 10px; }
+            .warning { color: #b33c00; }
+            .collapse-btn { cursor: pointer; background: #f5f5f5; border: none; padding: 5px 10px; }
+            .content { display: block; overflow: hidden; }
+            .hidden { display: none; }
+            .summary { font-weight: bold; }
+            .answer-panel {
+                display: flex;
+                margin-bottom: 20px;
+            }
+            .answer-block {
+                flex: 1;
+                padding: 15px;
+                margin: 0 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+            .answer-title {
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #333;
+            }
+            .answer-text {
+                font-family: monospace;
+                white-space: pre-wrap;
+                background-color: white;
+                padding: 10px;
+                border-radius: 3px;
+                border: 1px solid #eee;
+                max-height: 200px;
+                overflow: auto;
+            }
+        
+</style>
+</head><body>
+<div class='debug-panel'>
+<h2>Debug Session: vegetable_list</h2>
+<div class='summary'><strong>Question:</strong> I&#x27;m making a grocery list for my mom... Could you please create a list of just the vegetables from my list? If you could do that, then I can figure out how to categorize the rest of the list into the appropriate categories. But remember that my mom is a real stickler, so make sure that no botanical fruits end up on the vegetable list, or she won&#x27;t get them when she&#x27;s at the store. Please alphabetize the list of vegetables, and place each item in a comma separated list.</div>
+</div>
+<div class='debug-panel'>
+<h3>Answer Comparison</h3>
+<div class='answer-panel'>
+<div class='answer-block'>
+<div class='answer-title'>Original Answer</div>
+<div class='answer-text'>Looking at your grocery list, I need to identify which items are vegetables in the botanical sense (not culinary usage).
+
+In botany, vegetables are typically parts of plants that aren&#x27;t fruits or seeds - they include leaves, stems, roots, bulbs, and flowers. Fruits, botanically speaking, develop from the flower of a plant and contain seeds.
+
+From your list:
+
+- Broccoli (flower vegetable)
+- Celery (stem vegetable)
+- Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables)
+- Lettuce (leafy vegetable)
+- Sweet potatoes (root vegetable)
+- Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower)
+- Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)
+
+Since your mom is a professor of botany and a stickler for categorization, I&#x27;ll only include the true botanical vegetables.
+
+Alphabetized list of vegetables:
+broccoli, celery, green beans, lettuce, sweet potatoes</div>
+</div>
+<div class='answer-block'>
+<div class='answer-title'>Verbose Answer</div>
+<div class='answer-text'>Looking at your grocery list, I need to identify which items are vegetables in the botanical sense (not culinary usage).
+
+In botany, vegetables are typically parts of plants that aren&#x27;t fruits or seeds - they include leaves, stems, roots, bulbs, and flowers. Fruits, botanically speaking, develop from the flower of a plant and contain seeds.
+
+From your list:
+
+- Broccoli (flower vegetable)
+- Celery (stem vegetable)
+- Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables)
+- Lettuce (leafy vegetable)
+- Sweet potatoes (root vegetable)
+- Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower)
+- Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)
+
+Since your mom is a professor of botany and a stickler for categorization, I&#x27;ll only include the true botanical vegetables.
+
+Alphabetized list of vegetables:
+broccoli, celery, green beans, lettuce, sweet potatoes</div>
+</div>
+<div class='answer-block'>
+<div class='answer-title'>Final Answer</div>
+<div class='answer-text'>Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower), Broccoli (flower vegetable), Celery (stem vegetable), Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables), Lettuce (leafy vegetable), Sweet potatoes (root vegetable), Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)</div>
+</div>
+</div>
+</div>
+<div class='debug-panel'>
+<h3>Processing Summary</h3>
+<p>Original answer length: <strong>1069</strong> characters</p>
+<p>Verbose answer length: <strong>1069</strong> characters</p>
+<p>Final answer length: <strong>486</strong> characters</p>
+<p class='warning'><strong>Warning:</strong> Significant content reduction detected! 583 characters removed (54.5%)</p>
+</div>
+<div class='debug-panel'>
+<h3>Processing Steps</h3>
+<div class='step' id='step-0'>
+<h3>1. Original Input</h3>
+<button onclick="toggleContent('diff-0')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-0' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Looking at your grocery list, I need to identify which items are vegetables in the botanical sense (not culinary usage).
+
+In botany, vegetables are typically parts of plants that aren&#x27;t fruits or seeds - they include leaves, stems, roots, bulbs, and flowers. Fruits, botanically speaking, develop from the flower of a plant and contain seeds.
+
+From your list:
+
+- Broccoli (flower vegetable)
+- Celery (stem vegetable)
+- Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables)
+- Lettuce (leafy vegetable)
+- Sweet potatoes (root vegetable)
+- Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower)
+- Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)
+
+Since your mom is a professor of botany and a stickler for categorization, I&#x27;ll only include the true botanical vegetables.
+
+Alphabetized list of vegetables:
+broccoli, celery, green beans, lettuce, sweet potatoes</pre></div>
+</div>
+<button onclick="toggleContent('meta-0')" class='collapse-btn'>Show/Hide Metadata</button>
+<div id='meta-0' class='content hidden'>
+<div class='metadata'>
+<p><strong>question:</strong> I&#x27;m making a grocery list for my mom... Could you please create a list of just the vegetables from my list? If you could do that, then I can figure out how to categorize the rest of the list into the appropriate categories. But remember that my mom is a real stickler, so make sure that no botanical fruits end up on the vegetable list, or she won&#x27;t get them when she&#x27;s at the store. Please alphabetize the list of vegetables, and place each item in a comma separated list.</p>
+<p><strong>timestamp:</strong> 2025-05-22T11:51:49.593451</p>
+</div>
+</div>
+</div>
+<div class='step' id='step-1'>
+<h3>2. Verbose Answer Generation</h3>
+<button onclick="toggleContent('diff-1')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-1' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Looking at your grocery list, I need to identify which items are vegetables in the botanical sense (not culinary usage).
+
+In botany, vegetables are typically parts of plants that aren&#x27;t fruits or seeds - they include leaves, stems, roots, bulbs, and flowers. Fruits, botanically speaking, develop from the flower of a plant and contain seeds.
+
+From your list:
+
+- Broccoli (flower vegetable)
+- Celery (stem vegetable)
+- Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables)
+- Lettuce (leafy vegetable)
+- Sweet potatoes (root vegetable)
+- Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower)
+- Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)
+
+Since your mom is a professor of botany and a stickler for categorization, I&#x27;ll only include the true botanical vegetables.
+
+Alphabetized list of vegetables:
+broccoli, celery, green beans, lettuce, sweet potatoes</pre></div>
+</div>
+<button onclick="toggleContent('meta-1')" class='collapse-btn'>Show/Hide Metadata</button>
+<div id='meta-1' class='content hidden'>
+<div class='metadata'>
+<p><strong>stage:</strong> input</p>
+<p><strong>is_verbose_answer:</strong> True</p>
+</div>
+</div>
+</div>
+<div class='step' id='step-2'>
+<h3>3. Format Detection</h3>
+<button onclick="toggleContent('diff-2')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-2' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Looking at your grocery list, I need to identify which items are vegetables in the botanical sense (not culinary usage).
+
+In botany, vegetables are typically parts of plants that aren&#x27;t fruits or seeds - they include leaves, stems, roots, bulbs, and flowers. Fruits, botanically speaking, develop from the flower of a plant and contain seeds.
+
+From your list:
+
+- Broccoli (flower vegetable)
+- Celery (stem vegetable)
+- Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables)
+- Lettuce (leafy vegetable)
+- Sweet potatoes (root vegetable)
+- Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower)
+- Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)
+
+Since your mom is a professor of botany and a stickler for categorization, I&#x27;ll only include the true botanical vegetables.
+
+Alphabetized list of vegetables:
+broccoli, celery, green beans, lettuce, sweet potatoes</pre></div>
+</div>
+<button onclick="toggleContent('meta-2')" class='collapse-btn'>Show/Hide Metadata</button>
+<div id='meta-2' class='content hidden'>
+<div class='metadata'>
+<p><strong>numeric_answer:</strong> False</p>
+<p><strong>list_answer:</strong> True</p>
+<p><strong>alphabetical:</strong> True</p>
+<p><strong>comma_separated:</strong> True</p>
+<p><strong>exact_match:</strong> True</p>
+<p><strong>yes_no_answer:</strong> False</p>
+<p><strong>name_extraction:</strong> False</p>
+<p><strong>location_extraction:</strong> True</p>
+<p><strong>code_answer:</strong> False</p>
+<p><strong>currency:</strong> False</p>
+<p><strong>decimal_places:</strong> None</p>
+<p><strong>question_subject:</strong> my mom</p>
+<p><strong>question_type:</strong> procedure</p>
+<p><strong>expected_length:</strong> medium</p>
+</div>
+</div>
+</div>
+<div class='step' id='step-3'>
+<h3>4. Basic Cleanup</h3>
+<button onclick="toggleContent('diff-3')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-3' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Looking at your grocery list, I need to identify which items are vegetables in the botanical sense (not culinary usage).
+
+In botany, vegetables are typically parts of plants that aren&#x27;t fruits or seeds - they include leaves, stems, roots, bulbs, and flowers. Fruits, botanically speaking, develop from the flower of a plant and contain seeds.
+
+From your list:
+
+- Broccoli (flower vegetable)
+- Celery (stem vegetable)
+- Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables)
+- Lettuce (leafy vegetable)
+- Sweet potatoes (root vegetable)
+- Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower)
+- Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)
+
+Since your mom is a professor of botany and a stickler for categorization, I&#x27;ll only include the true botanical vegetables.
+
+Alphabetized list of vegetables:
+broccoli, celery, green beans, lettuce, sweet potatoes</pre></div>
+</div>
+</div>
+<div class='step' id='step-4'>
+<h3>5. List Processing</h3>
+<button onclick="toggleContent('diff-4')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-4' class='content'>
+<div class='diff'><span class='added'>+ Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower), Broccoli (flower vegetable), Celery (stem vegetable), Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables), Lettuce (leafy vegetable), Sweet potatoes (root vegetable), Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)</span><br><span class='removed'>- Looking at your grocery list, I need to identify which items are vegetables in the botanical sense (not culinary usage).</span><br><span class='removed'>- </span><br><span class='removed'>- In botany, vegetables are typically parts of plants that aren&#x27;t fruits or seeds - they include leaves, stems, roots, bulbs, and flowers. Fruits, botanically speaking, develop from the flower of a plant and contain seeds.</span><br><span class='removed'>- </span><br><span class='removed'>- From your list:</span><br><span class='removed'>- </span><br><span class='removed'>- - Broccoli (flower vegetable)</span><br><span class='removed'>- - Celery (stem vegetable)</span><br><span class='removed'>- - Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables)</span><br><span class='removed'>- - Lettuce (leafy vegetable)</span><br><span class='removed'>- - Sweet potatoes (root vegetable)</span><br><span class='removed'>- - Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower)</span><br><span class='removed'>- - Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)</span><br><span class='removed'>- </span><br><span class='removed'>- Since your mom is a professor of botany and a stickler for categorization, I&#x27;ll only include the true botanical vegetables.</span><br><span class='removed'>- </span><br><span class='removed'>- Alphabetized list of vegetables:</span><br><span class='removed'>- broccoli, celery, green beans, lettuce, sweet potatoes</span></div>
+</div>
+</div>
+<div class='step' id='step-5'>
+<h3>6. Exact Match Processing</h3>
+<button onclick="toggleContent('diff-5')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-5' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower), Broccoli (flower vegetable), Celery (stem vegetable), Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables), Lettuce (leafy vegetable), Sweet potatoes (root vegetable), Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)</pre></div>
+</div>
+</div>
+<div class='step' id='step-6'>
+<h3>7. Final Answer</h3>
+<button onclick="toggleContent('diff-6')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-6' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Bell pepper (technically a fruit botanically, as it has seeds and develops from the flower), Broccoli (flower vegetable), Celery (stem vegetable), Green beans (technically a fruit botanically, but since your mom is a botany professor, these are actually immature fruit pods, but the entire pod is eaten so they&#x27;re treated as vegetables), Lettuce (leafy vegetable), Sweet potatoes (root vegetable), Zucchini (technically a fruit botanically, as it has seeds and develops from the flower)</pre></div>
+</div>
+<button onclick="toggleContent('meta-6')" class='collapse-btn'>Show/Hide Metadata</button>
+<div id='meta-6' class='content hidden'>
+<div class='metadata'>
+<p><strong>stage:</strong> output</p>
+<p><strong>is_final_answer:</strong> True</p>
+</div>
+</div>
+</div>
+</div>
+
+        <script>
+        function toggleContent(id) {
+            var content = document.getElementById(id);
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+            } else {
+                content.classList.add('hidden');
+            }
+        }
+        </script>
+        
+</body></html>

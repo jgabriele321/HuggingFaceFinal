@@ -1,0 +1,69 @@
+{
+  "session_id": "3f57289b-8c60-48be-bd80-01f8099ca449",
+  "question": "How many at bats did the Yankee with the most walks in the 1977 regular season have that same season?",
+  "original_answer": "Unable to find the answer",
+  "verbose_answer": "Unable to find the answer",
+  "final_answer": "Unable to find the answer",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "Unable to find the answer",
+      "output": "Unable to find the answer",
+      "metadata": {
+        "question": "How many at bats did the Yankee with the most walks in the 1977 regular season have that same season?",
+        "timestamp": "2025-05-22T12:53:51.790982"
+      },
+      "timestamp": "2025-05-22T12:53:51.790996"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "Unable to find the answer",
+      "output": "Unable to find the answer",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T12:53:51.791067"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "Unable to find the answer",
+      "output": "Unable to find the answer",
+      "metadata": {
+        "numeric_answer": true,
+        "list_answer": false,
+        "alphabetical": false,
+        "comma_separated": false,
+        "exact_match": false,
+        "yes_no_answer": false,
+        "name_extraction": false,
+        "location_extraction": false,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "",
+        "question_type": "information",
+        "expected_length": "short"
+      },
+      "timestamp": "2025-05-22T12:53:51.791191"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "Unable to find the answer",
+      "output": "Unable to find the answer",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:53:51.791212"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "Unable to find the answer",
+      "output": "Unable to find the answer",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T12:53:51.791239"
+    }
+  ],
+  "timestamp": "2025-05-22T12:53:51.792428"
+}

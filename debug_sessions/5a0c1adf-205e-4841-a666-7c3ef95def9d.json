@@ -1,0 +1,83 @@
+{
+  "session_id": "5a0c1adf-205e-4841-a666-7c3ef95def9d",
+  "question": "What is the first name of the only Malko Competition recipient from the 20th Century (after 1977) whose nationality on record is a country that no longer exists?",
+  "original_answer": "Ivo",
+  "verbose_answer": "Ivo",
+  "final_answer": "Ivo",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "Ivo",
+      "output": "Ivo",
+      "metadata": {
+        "question": "What is the first name of the only Malko Competition recipient from the 20th Century (after 1977) whose nationality on record is a country that no longer exists?",
+        "timestamp": "2025-05-22T12:56:08.633145"
+      },
+      "timestamp": "2025-05-22T12:56:08.633159"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "Ivo",
+      "output": "Ivo",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T12:56:08.633232"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "Ivo",
+      "output": "Ivo",
+      "metadata": {
+        "numeric_answer": false,
+        "list_answer": false,
+        "alphabetical": false,
+        "comma_separated": false,
+        "exact_match": true,
+        "yes_no_answer": false,
+        "name_extraction": true,
+        "location_extraction": true,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "the only malko competition recipient from the 20th century (after 1977) whose nationality on record is a country that no longer exists",
+        "question_type": "definition",
+        "expected_length": "medium"
+      },
+      "timestamp": "2025-05-22T12:56:08.633427"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "Ivo",
+      "output": "Ivo",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:56:08.633458"
+    },
+    {
+      "stage": "Entity Extraction",
+      "input": "Ivo",
+      "output": "Ivo",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:56:08.633504"
+    },
+    {
+      "stage": "Exact Match Processing",
+      "input": "Ivo",
+      "output": "Ivo",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:56:08.633506"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "Ivo",
+      "output": "Ivo",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T12:56:08.633510"
+    }
+  ],
+  "timestamp": "2025-05-22T12:56:08.634067"
+}

@@ -1,0 +1,83 @@
+{
+  "session_id": "4fc2f1ae-8625-45b5-ab34-ad4433bc21f8",
+  "question": "Who nominated the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016?",
+  "original_answer": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+  "verbose_answer": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+  "final_answer": "Featured Article",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+      "output": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+      "metadata": {
+        "question": "Who nominated the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016?",
+        "timestamp": "2025-05-22T13:51:05.069374"
+      },
+      "timestamp": "2025-05-22T13:51:05.069390"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+      "output": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T13:51:05.069540"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+      "output": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+      "metadata": {
+        "numeric_answer": false,
+        "list_answer": false,
+        "alphabetical": false,
+        "comma_separated": false,
+        "exact_match": true,
+        "yes_no_answer": false,
+        "name_extraction": true,
+        "location_extraction": false,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "a dinosaur that was promoted in november 2016",
+        "question_type": "information",
+        "expected_length": "medium"
+      },
+      "timestamp": "2025-05-22T13:51:05.069756"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+      "output": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+      "metadata": {},
+      "timestamp": "2025-05-22T13:51:05.069783"
+    },
+    {
+      "stage": "Entity Extraction",
+      "input": "The nominator of the Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016 could not be found.",
+      "output": "Featured Article",
+      "metadata": {},
+      "timestamp": "2025-05-22T13:51:05.070686"
+    },
+    {
+      "stage": "Exact Match Processing",
+      "input": "Featured Article",
+      "output": "Featured Article",
+      "metadata": {},
+      "timestamp": "2025-05-22T13:51:05.070841"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "Featured Article",
+      "output": "Featured Article",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T13:51:05.070848"
+    }
+  ],
+  "timestamp": "2025-05-22T13:51:05.072292"
+}

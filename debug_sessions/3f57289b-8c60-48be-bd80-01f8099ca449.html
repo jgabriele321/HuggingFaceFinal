@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html><head>
+<title>Answer Processing Debug</title>
+<style>
+
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .debug-panel { border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-bottom: 20px; }
+            .step { border: 1px solid #eee; margin: 10px 0; padding: 10px; border-radius: 5px; }
+            .step h3 { margin-top: 0; color: #333; }
+            .diff { font-family: monospace; white-space: pre-wrap; margin: 10px 0; }
+            .added { background-color: #e6ffed; color: #22863a; }
+            .removed { background-color: #ffebe9; color: #cb2431; }
+            .metadata { background-color: #f6f8fa; padding: 10px; border-radius: 3px; margin-top: 10px; }
+            .warning { color: #b33c00; }
+            .collapse-btn { cursor: pointer; background: #f5f5f5; border: none; padding: 5px 10px; }
+            .content { display: block; overflow: hidden; }
+            .hidden { display: none; }
+            .summary { font-weight: bold; }
+            .answer-panel {
+                display: flex;
+                margin-bottom: 20px;
+            }
+            .answer-block {
+                flex: 1;
+                padding: 15px;
+                margin: 0 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+            .answer-title {
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #333;
+            }
+            .answer-text {
+                font-family: monospace;
+                white-space: pre-wrap;
+                background-color: white;
+                padding: 10px;
+                border-radius: 3px;
+                border: 1px solid #eee;
+                max-height: 200px;
+                overflow: auto;
+            }
+        
+</style>
+</head><body>
+<div class='debug-panel'>
+<h2>Debug Session: 3f57289b-8c60-48be-bd80-01f8099ca449</h2>
+<div class='summary'><strong>Question:</strong> How many at bats did the Yankee with the most walks in the 1977 regular season have that same season?</div>
+</div>
+<div class='debug-panel'>
+<h3>Answer Comparison</h3>
+<div class='answer-panel'>
+<div class='answer-block'>
+<div class='answer-title'>Original Answer</div>
+<div class='answer-text'>Unable to find the answer</div>
+</div>
+<div class='answer-block'>
+<div class='answer-title'>Verbose Answer</div>
+<div class='answer-text'>Unable to find the answer</div>
+</div>
+<div class='answer-block'>
+<div class='answer-title'>Final Answer</div>
+<div class='answer-text'>Unable to find the answer</div>
+</div>
+</div>
+</div>
+<div class='debug-panel'>
+<h3>Processing Summary</h3>
+<p>Original answer length: <strong>25</strong> characters</p>
+<p>Verbose answer length: <strong>25</strong> characters</p>
+<p>Final answer length: <strong>25</strong> characters</p>
+</div>
+<div class='debug-panel'>
+<h3>Processing Steps</h3>
+<div class='step' id='step-0'>
+<h3>1. Original Input</h3>
+<button onclick="toggleContent('diff-0')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-0' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Unable to find the answer</pre></div>
+</div>
+<button onclick="toggleContent('meta-0')" class='collapse-btn'>Show/Hide Metadata</button>
+<div id='meta-0' class='content hidden'>
+<div class='metadata'>
+<p><strong>question:</strong> How many at bats did the Yankee with the most walks in the 1977 regular season have that same season?</p>
+<p><strong>timestamp:</strong> 2025-05-22T12:53:51.790982</p>
+</div>
+</div>
+</div>
+<div class='step' id='step-1'>
+<h3>2. Verbose Answer Generation</h3>
+<button onclick="toggleContent('diff-1')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-1' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Unable to find the answer</pre></div>
+</div>
+<button onclick="toggleContent('meta-1')" class='collapse-btn'>Show/Hide Metadata</button>
+<div id='meta-1' class='content hidden'>
+<div class='metadata'>
+<p><strong>stage:</strong> input</p>
+<p><strong>is_verbose_answer:</strong> True</p>
+</div>
+</div>
+</div>
+<div class='step' id='step-2'>
+<h3>3. Format Detection</h3>
+<button onclick="toggleContent('diff-2')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-2' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Unable to find the answer</pre></div>
+</div>
+<button onclick="toggleContent('meta-2')" class='collapse-btn'>Show/Hide Metadata</button>
+<div id='meta-2' class='content hidden'>
+<div class='metadata'>
+<p><strong>numeric_answer:</strong> True</p>
+<p><strong>list_answer:</strong> False</p>
+<p><strong>alphabetical:</strong> False</p>
+<p><strong>comma_separated:</strong> False</p>
+<p><strong>exact_match:</strong> False</p>
+<p><strong>yes_no_answer:</strong> False</p>
+<p><strong>name_extraction:</strong> False</p>
+<p><strong>location_extraction:</strong> False</p>
+<p><strong>code_answer:</strong> False</p>
+<p><strong>currency:</strong> False</p>
+<p><strong>decimal_places:</strong> None</p>
+<p><strong>question_subject:</strong> </p>
+<p><strong>question_type:</strong> information</p>
+<p><strong>expected_length:</strong> short</p>
+</div>
+</div>
+</div>
+<div class='step' id='step-3'>
+<h3>4. Basic Cleanup</h3>
+<button onclick="toggleContent('diff-3')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-3' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Unable to find the answer</pre></div>
+</div>
+</div>
+<div class='step' id='step-4'>
+<h3>5. Final Answer</h3>
+<button onclick="toggleContent('diff-4')" class='collapse-btn'>Show/Hide Changes</button>
+<div id='diff-4' class='content'>
+<div class='diff'><p><em>No changes made</em></p><pre>Unable to find the answer</pre></div>
+</div>
+<button onclick="toggleContent('meta-4')" class='collapse-btn'>Show/Hide Metadata</button>
+<div id='meta-4' class='content hidden'>
+<div class='metadata'>
+<p><strong>stage:</strong> output</p>
+<p><strong>is_final_answer:</strong> True</p>
+</div>
+</div>
+</div>
+</div>
+
+        <script>
+        function toggleContent(id) {
+            var content = document.getElementById(id);
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+            } else {
+                content.classList.add('hidden');
+            }
+        }
+        </script>
+        
+</body></html>

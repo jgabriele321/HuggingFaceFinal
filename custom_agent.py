@@ -99,6 +99,10 @@ class GeminiAgent(EnhancedAgent):
         # Set planning interval for reflection (default to 4 steps for Gemini)
         planning_interval = kwargs.pop("planning_interval", 4)
         
+        # Remove temperature if present in kwargs
+        if "temperature" in kwargs:
+            kwargs.pop("temperature")
+        
         # Create the agent with Gemini-optimized settings
         return CodeAgent(
             tools=self.tools,
@@ -106,7 +110,6 @@ class GeminiAgent(EnhancedAgent):
             additional_authorized_imports=additional_authorized_imports,
             planning_interval=planning_interval,
             max_steps=self.max_steps,
-            temperature=0.4,  # Slightly lower temperature for more focused outputs
             **kwargs
         )
 

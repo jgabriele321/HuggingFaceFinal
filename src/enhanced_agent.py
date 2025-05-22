@@ -145,21 +145,35 @@ class EnhancedAgent:
         
         # Add the YouTube tool
         youtube_tool = get_youtube_tool()
-        tools.append(youtube_tool)
+        if isinstance(youtube_tool, Tool):
+            tools.append(youtube_tool)
+        else:
+            logger.warning(f"YouTube tool is not an instance of Tool, skipping")
         
         # Add the DuckDuckGo search tool
         search_tool = get_duckduckgo_search_tool()
-        tools.append(search_tool)
+        if isinstance(search_tool, Tool):
+            tools.append(search_tool)
+        else:
+            logger.warning(f"DuckDuckGo search tool is not an instance of Tool, skipping")
         
         # Add the webpage content tool
         webpage_tool = get_webpage_tool()
-        tools.append(webpage_tool)
+        if isinstance(webpage_tool, Tool):
+            tools.append(webpage_tool)
+        else:
+            logger.warning(f"Webpage tool is not an instance of Tool, skipping")
         
         # Add the Python interpreter tool
         python_tool = get_python_interpreter_tool()
-        tools.append(python_tool)
+        if isinstance(python_tool, Tool):
+            tools.append(python_tool)
+        else:
+            logger.warning(f"Python interpreter tool is not an instance of Tool, skipping")
         
-        logger.info(f"Initialized {len(tools)} tools: {', '.join(tool.name for tool in tools)}")
+        # Log tools
+        tool_names = [tool.name for tool in tools]
+        logger.info(f"Initialized {len(tools)} tools: {', '.join(tool_names)}")
         
         return tools
     

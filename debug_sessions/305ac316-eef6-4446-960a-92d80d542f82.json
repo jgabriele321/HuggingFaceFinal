@@ -1,0 +1,83 @@
+{
+  "session_id": "305ac316-eef6-4446-960a-92d80d542f82",
+  "question": "Who did the actor who played Ray in the Polish-language version of Everybody Loves Raymond play in Magda M.? Give only the first name.",
+  "original_answer": "Marek",
+  "verbose_answer": "Marek",
+  "final_answer": "Marek",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "Marek",
+      "output": "Marek",
+      "metadata": {
+        "question": "Who did the actor who played Ray in the Polish-language version of Everybody Loves Raymond play in Magda M.? Give only the first name.",
+        "timestamp": "2025-05-22T12:53:26.231831"
+      },
+      "timestamp": "2025-05-22T12:53:26.231854"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "Marek",
+      "output": "Marek",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T12:53:26.232002"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "Marek",
+      "output": "Marek",
+      "metadata": {
+        "numeric_answer": false,
+        "list_answer": false,
+        "alphabetical": false,
+        "comma_separated": false,
+        "exact_match": true,
+        "yes_no_answer": false,
+        "name_extraction": true,
+        "location_extraction": false,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "everybody loves raymond play in magda m",
+        "question_type": "information",
+        "expected_length": "medium"
+      },
+      "timestamp": "2025-05-22T12:53:26.232241"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "Marek",
+      "output": "Marek",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:53:26.232273"
+    },
+    {
+      "stage": "Entity Extraction",
+      "input": "Marek",
+      "output": "Marek",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:53:26.232379"
+    },
+    {
+      "stage": "Exact Match Processing",
+      "input": "Marek",
+      "output": "Marek",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:53:26.232385"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "Marek",
+      "output": "Marek",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T12:53:26.232391"
+    }
+  ],
+  "timestamp": "2025-05-22T12:53:26.234285"
+}

@@ -168,25 +168,6 @@ class YouTubeTool(Tool):
         )
 
 # Function to get a YouTube tool instance
-def get_youtube_tool() -> Dict[str, Any]:
-    """Create and return a YouTube tool configuration."""
-    return {
-        "name": "youtube",
-        "description": "Extract information from YouTube videos, including metadata, transcripts, and summaries",
-        "function": YouTubeTool().forward,
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "video_url": {
-                    "type": "string",
-                    "description": "URL of the YouTube video to process"
-                },
-                "action": {
-                    "type": "string",
-                    "description": "Action to perform: 'metadata', 'transcript', or 'summary'",
-                    "enum": ["metadata", "transcript", "summary"]
-                }
-            },
-            "required": ["video_url"]
-        }
-    } 
+def get_youtube_tool():
+    """Create and return a YouTube tool instance."""
+    return YouTubeTool() 

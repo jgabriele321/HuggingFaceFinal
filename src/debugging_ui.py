@@ -42,6 +42,8 @@ class AnswerProcessingDebugger:
         self.session_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self.current_question = ""
         self.original_answer = ""
+        self.verbose_answer = ""   # Store the verbose answer
+        self.final_answer = ""     # Store the final answer
         
     def start_debug_session(self, question: str, original_answer: str, question_id: Optional[str] = None):
         """
@@ -55,6 +57,8 @@ class AnswerProcessingDebugger:
         self.processing_steps = []
         self.current_question = question
         self.original_answer = original_answer
+        self.verbose_answer = ""
+        self.final_answer = ""
         self.session_id = question_id or datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         
         # Record the initial state
@@ -90,6 +94,12 @@ class AnswerProcessingDebugger:
             'metadata': metadata or {},
             'timestamp': datetime.datetime.now().isoformat()
         })
+        
+        # Update verbose and final answers at specific stages
+        if stage_name == "Verbose Answer Generation":
+            self.verbose_answer = output_text
+        elif stage_name == "Final Answer":
+            self.final_answer = output_text
         
         # Log changes
         if input_text != output_text:
@@ -127,6 +137,33 @@ class AnswerProcessingDebugger:
             .content { display: block; overflow: hidden; }
             .hidden { display: none; }
             .summary { font-weight: bold; }
+            .answer-panel {
+                display: flex;
+                margin-bottom: 20px;
+            }
+            .answer-block {
+                flex: 1;
+                padding: 15px;
+                margin: 0 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+            .answer-title {
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #333;
+            }
+            .answer-text {
+                font-family: monospace;
+                white-space: pre-wrap;
+                background-color: white;
+                padding: 10px;
+                border-radius: 3px;
+                border: 1px solid #eee;
+                max-height: 200px;
+                overflow: auto;
+            }
         """)
         html_output.append("</style>")
         html_output.append("</head><body>")
@@ -137,6 +174,32 @@ class AnswerProcessingDebugger:
         html_output.append(f"<div class='summary'><strong>Question:</strong> {html.escape(self.current_question)}</div>")
         html_output.append("</div>")
         
+        # Add verbose and final answers panel
+        html_output.append("<div class='debug-panel'>")
+        html_output.append("<h3>Answer Comparison</h3>")
+        html_output.append("<div class='answer-panel'>")
+        
+        # Original answer
+        html_output.append("<div class='answer-block'>")
+        html_output.append("<div class='answer-title'>Original Answer</div>")
+        html_output.append(f"<div class='answer-text'>{html.escape(self.original_answer)}</div>")
+        html_output.append("</div>")
+        
+        # Verbose answer
+        html_output.append("<div class='answer-block'>")
+        html_output.append("<div class='answer-title'>Verbose Answer</div>")
+        html_output.append(f"<div class='answer-text'>{html.escape(self.verbose_answer)}</div>")
+        html_output.append("</div>")
+        
+        # Final answer
+        html_output.append("<div class='answer-block'>")
+        html_output.append("<div class='answer-title'>Final Answer</div>")
+        html_output.append(f"<div class='answer-text'>{html.escape(self.final_answer)}</div>")
+        html_output.append("</div>")
+        
+        html_output.append("</div>") # End answer panel
+        html_output.append("</div>") # End debug panel
+        
         # Overall summary
         original_length = len(self.original_answer)
         final_step = self.processing_steps[-1] if self.processing_steps else None
@@ -145,7 +208,8 @@ class AnswerProcessingDebugger:
         html_output.append("<div class='debug-panel'>")
         html_output.append("<h3>Processing Summary</h3>")
         html_output.append(f"<p>Original answer length: <strong>{original_length}</strong> characters</p>")
-        html_output.append(f"<p>Final answer length: <strong>{final_length}</strong> characters</p>")
+        html_output.append(f"<p>Verbose answer length: <strong>{len(self.verbose_answer)}</strong> characters</p>")
+        html_output.append(f"<p>Final answer length: <strong>{len(self.final_answer)}</strong> characters</p>")
         
         # Warning if significant reduction
         if final_length < original_length * 0.5:
@@ -266,6 +330,8 @@ class AnswerProcessingDebugger:
                 "session_id": self.session_id,
                 "question": self.current_question,
                 "original_answer": self.original_answer,
+                "verbose_answer": self.verbose_answer,
+                "final_answer": self.final_answer,
                 "steps": self.processing_steps,
                 "timestamp": datetime.datetime.now().isoformat()
             }, f, indent=2)

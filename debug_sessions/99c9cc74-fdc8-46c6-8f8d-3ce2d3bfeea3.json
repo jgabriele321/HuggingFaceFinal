@@ -1,0 +1,76 @@
+{
+  "session_id": "99c9cc74-fdc8-46c6-8f8d-3ce2d3bfeea3",
+  "question": "Hi, I'm making a pie but I could use some help with my shopping list. I have everything I need for the crust, but I'm not sure about the filling. I got the recipe from my friend Aditi, but she left it as a voice memo and the speaker on my phone is buzzing so I can't quite make out what she's saying. Could you please listen to the recipe and list all of the ingredients that my friend described? I only want the ingredients for the filling, as I have everything I need to make my favorite pie crust. I've attached the recipe as Strawberry pie.mp3.\n\nIn your response, please only list the ingredients, not any measurements. So if the recipe calls for \"a pinch of salt\" or \"two cups of ripe strawberries\" the ingredients on the list would be \"salt\" and \"ripe strawberries\".\n\nPlease format your response as a comma separated list of ingredients. Also, please alphabetize the ingredients.",
+  "original_answer": "cornstarch, lemon juice, strawberries, sugar",
+  "verbose_answer": "cornstarch, lemon juice, strawberries, sugar",
+  "final_answer": "cornstarch, lemon juice, strawberries, sugar",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "cornstarch, lemon juice, strawberries, sugar",
+      "output": "cornstarch, lemon juice, strawberries, sugar",
+      "metadata": {
+        "question": "Hi, I'm making a pie but I could use some help with my shopping list. I have everything I need for the crust, but I'm not sure about the filling. I got the recipe from my friend Aditi, but she left it as a voice memo and the speaker on my phone is buzzing so I can't quite make out what she's saying. Could you please listen to the recipe and list all of the ingredients that my friend described? I only want the ingredients for the filling, as I have everything I need to make my favorite pie crust. I've attached the recipe as Strawberry pie.mp3.\n\nIn your response, please only list the ingredients, not any measurements. So if the recipe calls for \"a pinch of salt\" or \"two cups of ripe strawberries\" the ingredients on the list would be \"salt\" and \"ripe strawberries\".\n\nPlease format your response as a comma separated list of ingredients. Also, please alphabetize the ingredients.",
+        "timestamp": "2025-05-22T12:53:05.341948"
+      },
+      "timestamp": "2025-05-22T12:53:05.341962"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "cornstarch, lemon juice, strawberries, sugar",
+      "output": "cornstarch, lemon juice, strawberries, sugar",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T12:53:05.342052"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "cornstarch, lemon juice, strawberries, sugar",
+      "output": "cornstarch, lemon juice, strawberries, sugar",
+      "metadata": {
+        "numeric_answer": false,
+        "list_answer": true,
+        "alphabetical": true,
+        "comma_separated": true,
+        "exact_match": true,
+        "yes_no_answer": false,
+        "name_extraction": false,
+        "location_extraction": false,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "the crust",
+        "question_type": "information",
+        "expected_length": "medium"
+      },
+      "timestamp": "2025-05-22T12:53:05.342469"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "cornstarch, lemon juice, strawberries, sugar",
+      "output": "cornstarch, lemon juice, strawberries, sugar",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:53:05.342494"
+    },
+    {
+      "stage": "Exact Match Processing",
+      "input": "cornstarch, lemon juice, strawberries, sugar",
+      "output": "cornstarch, lemon juice, strawberries, sugar",
+      "metadata": {},
+      "timestamp": "2025-05-22T12:53:05.342524"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "cornstarch, lemon juice, strawberries, sugar",
+      "output": "cornstarch, lemon juice, strawberries, sugar",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T12:53:05.342527"
+    }
+  ],
+  "timestamp": "2025-05-22T12:53:05.343507"
+}
