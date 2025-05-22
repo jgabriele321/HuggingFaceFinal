@@ -11,6 +11,7 @@ import logging
 import functools
 from src.enhanced_agent import EnhancedAgent
 from smolagents import LiteLLMModel, CodeAgent
+from src.youtube_tool import YouTubeTool, get_youtube_tool  # Import from our local implementation
 from dotenv import load_dotenv
 
 # Load environment variables from config/.env
@@ -87,7 +88,7 @@ class GeminiAgent(EnhancedAgent):
             "math", "random", "datetime", "time", "re", "json", 
             "collections", "itertools", "functools", "operator",
             "string", "copy", "textwrap", "calendar", "fractions",
-            "statistics", "decimal", "pathlib", "uuid",
+            "statistics", "decimal", "pathlib", "uuid", "bs4",
             "os", "sys", "requests", "pandas", "numpy", 
             "csv", "xml", "html"
         ]
@@ -103,9 +104,25 @@ class GeminiAgent(EnhancedAgent):
         if "temperature" in kwargs:
             kwargs.pop("temperature")
         
+        # Create all tools list, starting with existing tools
+        all_tools = []
+        
+        # Check if we have existing tools
+        if hasattr(self, 'tools') and self.tools:
+            all_tools.extend(self.tools)
+        
+        # Check if YouTube tool is already in the tools list
+        has_youtube_tool = any(tool.name == "youtube" for tool in all_tools)
+        
+        # Add YouTube tool only if it's not already present
+        if not has_youtube_tool:
+            logger.info("Adding YouTube tool to agent")
+            youtube_tool = get_youtube_tool()
+            all_tools.append(youtube_tool)
+        
         # Create the agent with Gemini-optimized settings
         return CodeAgent(
-            tools=self.tools,
+            tools=all_tools,
             model=self.model,
             additional_authorized_imports=additional_authorized_imports,
             planning_interval=planning_interval,

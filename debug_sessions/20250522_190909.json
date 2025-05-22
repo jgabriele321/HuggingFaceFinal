@@ -1,0 +1,69 @@
+{
+  "session_id": "20250522_190909",
+  "question": "In the video https://www.youtube.com/watch?v=L1vXCYZAYYM, what is the highest number of bird species shown simultaneously?",
+  "original_answer": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+  "verbose_answer": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+  "final_answer": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+  "steps": [
+    {
+      "stage": "Original Input",
+      "input": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "output": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "metadata": {
+        "question": "In the video https://www.youtube.com/watch?v=L1vXCYZAYYM, what is the highest number of bird species shown simultaneously?",
+        "timestamp": "2025-05-22T19:09:09.098077"
+      },
+      "timestamp": "2025-05-22T19:09:09.098081"
+    },
+    {
+      "stage": "Verbose Answer Generation",
+      "input": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "output": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "metadata": {
+        "stage": "input",
+        "is_verbose_answer": true
+      },
+      "timestamp": "2025-05-22T19:09:09.098167"
+    },
+    {
+      "stage": "Format Detection",
+      "input": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "output": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "metadata": {
+        "numeric_answer": true,
+        "list_answer": false,
+        "alphabetical": false,
+        "comma_separated": false,
+        "exact_match": false,
+        "yes_no_answer": false,
+        "name_extraction": false,
+        "location_extraction": false,
+        "code_answer": false,
+        "currency": false,
+        "decimal_places": null,
+        "question_subject": "bird species shown simultaneously",
+        "question_type": "definition",
+        "expected_length": "short"
+      },
+      "timestamp": "2025-05-22T19:09:09.099838"
+    },
+    {
+      "stage": "Basic Cleanup",
+      "input": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "output": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "metadata": {},
+      "timestamp": "2025-05-22T19:09:09.100300"
+    },
+    {
+      "stage": "Final Answer",
+      "input": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "output": "Unable to determine the highest number of bird species shown simultaneously due to lack of access to video content",
+      "metadata": {
+        "stage": "output",
+        "is_final_answer": true
+      },
+      "timestamp": "2025-05-22T19:09:09.101650"
+    }
+  ],
+  "timestamp": "2025-05-22T19:09:09.101976"
+}

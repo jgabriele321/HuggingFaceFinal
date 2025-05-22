@@ -36,6 +36,12 @@ if not os.environ.get("OPENROUTER_API_KEY"):
     print("Error: OPENROUTER_API_KEY environment variable is not set")
     print("Please set it in config/.env file")
     sys.exit(1)
+    
+# Check if Serper API key is set
+if not os.environ.get("SERPER_API_KEY"):
+    print("Warning: SERPER_API_KEY environment variable is not set")
+    print("Web search functionality will be limited")
+    print("Please set it in config/.env file for full functionality")
 
 # The most direct approach: Completely replace requests.get
 # This guarantees that we can control exactly how many questions are returned

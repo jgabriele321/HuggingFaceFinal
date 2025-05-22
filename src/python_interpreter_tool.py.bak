@@ -400,20 +400,4 @@ class PythonInterpreterTool(Tool):
 # Function to create an instance of the tool
 def get_python_interpreter_tool():
     """Create and return an enhanced Python interpreter tool instance."""
-    tool = PythonInterpreterTool()
-    
-    # Make sure tool is properly initialized
-    if not hasattr(tool, "timeout_seconds"):
-        tool.timeout_seconds = 10
-        
-    if not hasattr(tool, "authorized_imports"):
-        tool.authorized_imports = [
-            "math", "random", "datetime", "time", "re", "json", 
-            "collections", "itertools", "functools", "operator",
-            "string", "copy", "textwrap", "calendar", "fractions",
-            "statistics", "decimal", "pathlib", "uuid"
-        ]
-    
-    return tool
-    """Create and return an enhanced Python interpreter tool instance."""
     return PythonInterpreterTool() 
