@@ -37,7 +37,7 @@ class EnhancedAgent:
         self, 
         openrouter_api_key: Optional[str] = None,
         model_id: str = None, 
-        max_steps: int = 12,  # Default to 12 steps which is optimal for complex reasoning
+        max_steps: int = 20,  # Increased from 12 to 20 for complex reasoning
         planning_interval: int = 3,
         verbose: bool = True,
         hf_token: Optional[str] = None,  # Added for compatibility with app.py
@@ -51,7 +51,7 @@ class EnhancedAgent:
         Args:
             openrouter_api_key: OpenRouter API key
             model_id: Model ID to use with OpenRouter
-            max_steps: Maximum number of steps to take (minimum 12 recommended for complex reasoning)
+            max_steps: Maximum number of steps to take (default 20 for complex reasoning)
             planning_interval: How often to run a planning step
             verbose: Whether to log verbose output
             hf_token: Hugging Face token (not used, kept for compatibility)
@@ -98,9 +98,9 @@ class EnhancedAgent:
                 logger.warning("No API keys provided, using a free model")
                 self.model_id = "HuggingFaceH4/zephyr-7b-beta"
             
-        # Ensure max_steps is at least 12 for effective complex reasoning
-        self.max_steps = max(max_steps, 12)  # Force minimum of 12 steps
-        logger.info(f"Setting max_steps to {self.max_steps} (minimum 12 recommended)")
+        # Ensure max_steps is at least 20 for effective complex reasoning
+        self.max_steps = max(max_steps, 20)  # Increased minimum from 12 to 20
+        logger.info(f"Setting max_steps to {self.max_steps} (minimum 20 recommended)")
         self.planning_interval = planning_interval
         self.verbose = verbose
         
@@ -219,7 +219,7 @@ class EnhancedAgent:
             model=self.model,
             additional_authorized_imports=self.additional_imports,
             planning_interval=self.planning_interval,
-            max_steps=max(self.max_steps, 12)  # Ensure max_steps is at least 12
+            max_steps=max(self.max_steps, 20)  # Ensure max_steps is at least 20
         )
         
         return agent
@@ -296,10 +296,18 @@ DO NOT try to use non-existent functions like wiki(), search(), or answer().
                     result = direct_answer
             else:
                 # Use smolagents CodeAgent
-                # Always use a minimum of 12 steps for all queries
+                # Use the configured max_steps for all queries
                 # This ensures complex reasoning has enough steps
-                logger.info(f"Using CodeAgent for query with max_steps=12")
-                result = self.agent.run(enhanced_query, max_steps=12)
+                logger.info(f"Using CodeAgent for query with max_steps={self.max_steps}")
+                result = self.agent.run(enhanced_query, max_steps=self.max_steps)
+            
+            # Check for error states and fallback patterns
+            if not result or isinstance(result, str) and any(error_pattern in result.lower() for error_pattern in ["true, fallback", "error", "failed", "unable to", "i don't know", "sorry"]):
+                logger.warning(f"Detected potential error state in result: {result[:100]}...")
+                # Try a simplified query without tool instructions
+                simplified_query = f"Answer this question directly and concisely: {query}"
+                logger.info("Retrying with simplified query...")
+                result = self.agent.run(simplified_query, max_steps=min(self.max_steps, 15))
             
             # Post-process the result if needed
             processed_result = self._post_process_result(result, query)
