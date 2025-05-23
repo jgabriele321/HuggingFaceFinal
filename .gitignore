@@ -1,5 +1,6 @@
 # Environment variables
 .env
+config/.env
 
 # Python
 __pycache__/
@@ -27,12 +28,15 @@ wheels/
 venv/
 ENV/
 env/
+.venv
 
 # IDE files
 .idea/
 .vscode/
 *.swp
 *.swo
+.vim
+*.orig
 
 # OS generated files
 .DS_Store
@@ -47,8 +51,54 @@ Thumbs.db
 samplecode/
 "sample code"/
 sample\ code/
+SampleCode/
 
 # Runtime artifacts
 debug_sessions/
 logs/
-files/ 
+files/
+cache/
+temp/
+tmp/
+*.tmp
+
+# Backup files
+*.bak
+*.backup
+*~
+*.orig
+
+# Test files and temporary scripts
+test_*.py
+*_test.py
+temp_*.py
+debug_*.py
+
+# Large files and media
+*.mp4
+*.avi
+*.mov
+*.mp3
+*.wav
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.pdf
+*.zip
+*.tar.gz
+
+# Documentation drafts
+*_draft.md
+*_old.md
+Phase*.md
+Roadmap*.md
+Completed.md
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Local configuration
+local_config.py
+settings_local.py 
