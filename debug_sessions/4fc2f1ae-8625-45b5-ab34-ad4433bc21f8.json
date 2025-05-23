@@ -1,34 +1,34 @@
 {
   "session_id": "4fc2f1ae-8625-45b5-ab34-ad4433bc21f8",
   "question": "Who nominated the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016?",
-  "original_answer": "FunkMonk",
-  "verbose_answer": "FunkMonk",
-  "final_answer": "FunkMonk",
+  "original_answer": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featured_article_candidates/Giganotosaurus/archive1",
+  "verbose_answer": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featured_article_candidates/Giganotosaurus/archive1",
+  "final_answer": "Search",
   "steps": [
     {
       "stage": "Original Input",
-      "input": "FunkMonk",
-      "output": "FunkMonk",
+      "input": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featured_article_candidates/Giganotosaurus/archive1",
+      "output": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featured_article_candidates/Giganotosaurus/archive1",
       "metadata": {
         "question": "Who nominated the only Featured Article on English Wikipedia about a dinosaur that was promoted in November 2016?",
-        "timestamp": "2025-05-22T19:32:01.891516"
+        "timestamp": "2025-05-22T21:03:49.086032"
       },
-      "timestamp": "2025-05-22T19:32:01.891539"
+      "timestamp": "2025-05-22T21:03:49.086067"
     },
     {
       "stage": "Verbose Answer Generation",
-      "input": "FunkMonk",
-      "output": "FunkMonk",
+      "input": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featured_article_candidates/Giganotosaurus/archive1",
+      "output": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featured_article_candidates/Giganotosaurus/archive1",
       "metadata": {
         "stage": "input",
         "is_verbose_answer": true
       },
-      "timestamp": "2025-05-22T19:32:01.891727"
+      "timestamp": "2025-05-22T21:03:49.086230"
     },
     {
       "stage": "Format Detection",
-      "input": "FunkMonk",
-      "output": "FunkMonk",
+      "input": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featured_article_candidates/Giganotosaurus/archive1",
+      "output": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featured_article_candidates/Giganotosaurus/archive1",
       "metadata": {
         "numeric_answer": false,
         "list_answer": false,
@@ -45,32 +45,39 @@
         "question_type": "information",
         "expected_length": "medium"
       },
-      "timestamp": "2025-05-22T19:32:01.894362"
+      "timestamp": "2025-05-22T21:03:49.086407"
     },
     {
       "stage": "Basic Cleanup",
-      "input": "FunkMonk",
-      "output": "FunkMonk",
+      "input": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featured_article_candidates/Giganotosaurus/archive1",
+      "output": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featuredarticlecandidates/Giganotosaurus/archive1",
       "metadata": {},
-      "timestamp": "2025-05-22T19:32:01.894986"
+      "timestamp": "2025-05-22T21:03:49.086492"
+    },
+    {
+      "stage": "Entity Extraction",
+      "input": "Search results for: Giganotosaurus featured article nominator\n\n1. Wikipedia:Featured article candidates/Giganotosaurus/archive1\n   This article is about one of the largest known meat-eating dinosaurs, and therefore one of the largest terrestrial carnivores to have ever existed.\n   Source: Google via Serper - https://en.wikipedia.org/wiki/Wikipedia:Featuredarticlecandidates/Giganotosaurus/archive1",
+      "output": "Search",
+      "metadata": {},
+      "timestamp": "2025-05-22T21:03:49.087461"
     },
     {
       "stage": "Exact Match Processing",
-      "input": "FunkMonk",
-      "output": "FunkMonk",
+      "input": "Search",
+      "output": "Search",
       "metadata": {},
-      "timestamp": "2025-05-22T19:32:01.895634"
+      "timestamp": "2025-05-22T21:03:49.087638"
     },
     {
       "stage": "Final Answer",
-      "input": "FunkMonk",
-      "output": "FunkMonk",
+      "input": "Search",
+      "output": "Search",
       "metadata": {
         "stage": "output",
         "is_final_answer": true
       },
-      "timestamp": "2025-05-22T19:32:01.895645"
+      "timestamp": "2025-05-22T21:03:49.087644"
     }
   ],
-  "timestamp": "2025-05-22T19:32:01.897577"
+  "timestamp": "2025-05-22T21:03:49.088226"
 }

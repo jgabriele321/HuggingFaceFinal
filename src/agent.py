@@ -57,6 +57,8 @@ class EnhancedAgent:
         from src.webpage_tool import WebpageTool
         from src.python_interpreter_tool import PythonInterpreterTool
         from src.file_handler_tool import get_file_handler_tool
+        from src.enhanced_wikipedia_tool import EnhancedWikipediaTool
+        from src.chess_analysis_tool import ChessAnalysisTool
         
         # Initialize file handler tool using the configuration function
         try:
@@ -99,7 +101,9 @@ class EnhancedAgent:
             ("youtube", YouTubeTool), 
             ("web_search", DuckDuckGoSearchTool),
             ("visit_webpage", WebpageTool),
-            ("python", PythonInterpreterTool)
+            ("python", PythonInterpreterTool),
+            ("enhanced_wikipedia", EnhancedWikipediaTool),
+            ("chess_analyzer", ChessAnalysisTool)
         ]
         
         # Initialize each tool with proper error handling
@@ -348,6 +352,8 @@ Instructions:
 3. For webpage content, use the webpage_tool
 4. For YouTube videos, use the youtube_tool
 5. For calculations or data processing, use the python_interpreter tool
+6. For Wikipedia research and discography data, use the enhanced_wikipedia_search tool
+7. For chess position analysis, use the chess_position_analyzer tool
 
 Please process the query and provide a clear, concise answer.
 """

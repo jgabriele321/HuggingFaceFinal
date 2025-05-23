@@ -1,34 +1,34 @@
 {
   "session_id": "5a0c1adf-205e-4841-a666-7c3ef95def9d",
   "question": "What is the first name of the only Malko Competition recipient from the 20th Century (after 1977) whose nationality on record is a country that no longer exists?",
-  "original_answer": "Ivo",
-  "verbose_answer": "Ivo",
-  "final_answer": "Ivo",
+  "original_answer": "Maximiano",
+  "verbose_answer": "Maximiano",
+  "final_answer": "Maximiano",
   "steps": [
     {
       "stage": "Original Input",
-      "input": "Ivo",
-      "output": "Ivo",
+      "input": "Maximiano",
+      "output": "Maximiano",
       "metadata": {
         "question": "What is the first name of the only Malko Competition recipient from the 20th Century (after 1977) whose nationality on record is a country that no longer exists?",
-        "timestamp": "2025-05-22T12:56:08.633145"
+        "timestamp": "2025-05-22T21:16:56.547468"
       },
-      "timestamp": "2025-05-22T12:56:08.633159"
+      "timestamp": "2025-05-22T21:16:56.547492"
     },
     {
       "stage": "Verbose Answer Generation",
-      "input": "Ivo",
-      "output": "Ivo",
+      "input": "Maximiano",
+      "output": "Maximiano",
       "metadata": {
         "stage": "input",
         "is_verbose_answer": true
       },
-      "timestamp": "2025-05-22T12:56:08.633232"
+      "timestamp": "2025-05-22T21:16:56.547636"
     },
     {
       "stage": "Format Detection",
-      "input": "Ivo",
-      "output": "Ivo",
+      "input": "Maximiano",
+      "output": "Maximiano",
       "metadata": {
         "numeric_answer": false,
         "list_answer": false,
@@ -45,39 +45,39 @@
         "question_type": "definition",
         "expected_length": "medium"
       },
-      "timestamp": "2025-05-22T12:56:08.633427"
+      "timestamp": "2025-05-22T21:16:56.547813"
     },
     {
       "stage": "Basic Cleanup",
-      "input": "Ivo",
-      "output": "Ivo",
+      "input": "Maximiano",
+      "output": "Maximiano",
       "metadata": {},
-      "timestamp": "2025-05-22T12:56:08.633458"
+      "timestamp": "2025-05-22T21:16:56.547875"
     },
     {
       "stage": "Entity Extraction",
-      "input": "Ivo",
-      "output": "Ivo",
+      "input": "Maximiano",
+      "output": "Maximiano",
       "metadata": {},
-      "timestamp": "2025-05-22T12:56:08.633504"
+      "timestamp": "2025-05-22T21:16:56.547921"
     },
     {
       "stage": "Exact Match Processing",
-      "input": "Ivo",
-      "output": "Ivo",
+      "input": "Maximiano",
+      "output": "Maximiano",
       "metadata": {},
-      "timestamp": "2025-05-22T12:56:08.633506"
+      "timestamp": "2025-05-22T21:16:56.547930"
     },
     {
       "stage": "Final Answer",
-      "input": "Ivo",
-      "output": "Ivo",
+      "input": "Maximiano",
+      "output": "Maximiano",
       "metadata": {
         "stage": "output",
         "is_final_answer": true
       },
-      "timestamp": "2025-05-22T12:56:08.633510"
+      "timestamp": "2025-05-22T21:16:56.547934"
     }
   ],
-  "timestamp": "2025-05-22T12:56:08.634067"
+  "timestamp": "2025-05-22T21:16:56.549842"
 }
