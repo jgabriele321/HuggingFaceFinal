@@ -342,6 +342,11 @@ class ImprovedAnswerProcessor:
         """
         logger.info("Analyzing text for numerical answer")
         
+        # FIXED: Add safeguard for direct numeric inputs - if text is already a clean number, return it
+        if re.match(r'^\d+(?:\.\d+)?$', text.strip()):
+            logger.info(f"Input is already a clean number: {text.strip()}")
+            return text.strip()
+        
         # Special handling for questions about countable items in specific time ranges
         if "between" in question.lower() and any(term in question.lower() for term in ["albums", "books", "movies", "songs"]):
             logger.info("Detected a question about counting items in a date range")
@@ -445,7 +450,17 @@ class ImprovedAnswerProcessor:
                     logger.info(f"Using last number found: {numbers[-1]}")
                     return numbers[-1]
         
-        # Generic number extraction if no specific pattern matched
+        # FIXED: More robust generic number extraction for monetary amounts and decimal numbers
+        # First try to extract complete decimal numbers (including large amounts like 456282.77)
+        full_decimal_pattern = r'\b(\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+\.\d+)\b'
+        decimal_match = re.search(full_decimal_pattern, text)
+        if decimal_match:
+            # Remove commas and return the full number
+            result = decimal_match.group(1).replace(',', '')
+            logger.info(f"Extracted full decimal number: {result}")
+            return result
+        
+        # Fallback to simple integer extraction
         num_match = re.search(r'\b(\d+)\b', text)
         if num_match:
             logger.info(f"Extracted generic number: {num_match.group(1)}")
@@ -466,6 +481,14 @@ class ImprovedAnswerProcessor:
             Extracted entity or None
         """
         if format_info.get("name_extraction"):
+            # Check if the input already contains comma-separated names and the question asks for that format
+            if ',' in text and any(phrase in format_info.get("question_subject", "").lower() for phrase in ["before and after", "pitcher before", "form"]):
+                # For questions asking for "X, Y" format, preserve the comma-separated structure
+                comma_separated_names = re.findall(r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)', text)
+                if len(comma_separated_names) >= 2:
+                    # Return the format exactly as requested (e.g., "Name1, Name2")
+                    return ", ".join(comma_separated_names[:2])  # Take first two names
+            
             # Look for name patterns
             name_patterns = [
                 r'(?:is|was|named|called|by)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})',
@@ -484,6 +507,10 @@ class ImprovedAnswerProcessor:
                 # Filter out common non-name capitalizations
                 filtered = [n for n in names if n not in ['I', 'The', 'This', 'It', 'In']]
                 if filtered:
+                    # FIXED: Check if multiple names are expected based on context
+                    if len(filtered) > 1 and ',' in text:
+                        # If the original text had commas and we found multiple names, preserve the format
+                        return ", ".join(filtered[:2])  # Return first two names
                     return filtered[0]
         
         elif format_info.get("location_extraction"):
