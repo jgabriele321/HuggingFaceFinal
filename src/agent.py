@@ -24,212 +24,9 @@ from config.logging_config import configure_logging
 configure_logging()
 logger = logging.getLogger("EnhancedAgent")
 
-# Import tools
-from src.youtube_tool import get_youtube_tool
-from src.duckduckgo_search_tool import get_duckduckgo_search_tool
-from src.webpage_tool import get_webpage_tool
-from src.python_interpreter_tool import get_python_interpreter_tool
-from src.file_handler_tool import get_file_handler_tool
-
 # Import final answer processor - Replace with improved processor
 # from src.final_answer_processor import FinalAnswerProcessor
 from src.improved_answer_processor import ImprovedAnswerProcessor
-
-class SmolTool(Tool):
-    """Custom Tool class that ensures proper attribute initialization."""
-    
-    def __init__(self, name: str, description: str, function: callable, parameters: dict):
-        """Initialize the tool with required attributes."""
-        super().__init__()
-        # Set required class attributes
-        self.name = name
-        self.description = description
-        self._function = function
-        
-        # Convert parameters to the format smolagents expects
-        self.inputs = {}
-        if "properties" in parameters:
-            for param_name, param_info in parameters["properties"].items():
-                self.inputs[param_name] = {
-                    "type": param_info["type"],
-                    "description": param_info["description"]
-                }
-                # Add nullable if present
-                if "nullable" in param_info:
-                    self.inputs[param_name]["nullable"] = param_info["nullable"]
-        else:
-            # If no properties, use the parameters directly
-            for param_name, param_info in parameters.items():
-                self.inputs[param_name] = {
-                    "type": param_info.get("type", "string"),
-                    "description": param_info.get("description", "")
-                }
-        
-        # Set output type (defaulting to string if not specified)
-        self.output_type = "string"
-        
-        # Create a dynamic forward method with explicit parameter names
-        param_names = list(self.inputs.keys())
-        param_str = ", ".join(param_names)
-        forward_code = f"""def forward(self, {param_str}):
-            try:
-                # Apply pre-processing based on tool type
-                {self._get_preprocessing_code(param_names)}
-                
-                # Call the underlying function
-                result = self._function({param_str})
-                
-                # Apply post-processing based on tool type
-                return self._post_process_result(result)
-            except Exception as e:
-                logger.error(f"Error executing tool {{self.name}}: {{str(e)}}")
-                return self._handle_tool_error(e)
-        """
-        
-        # Create a new namespace and execute the forward method code
-        namespace = {}
-        exec(forward_code, globals(), namespace)
-        
-        # Bind the forward method to this instance
-        self.forward = namespace["forward"].__get__(self, SmolTool)
-        
-        # Call setup method if it exists in the parent class
-        if hasattr(self.__class__, 'setup') and callable(getattr(self.__class__, 'setup')):
-            logger.info(f"Calling setup method for tool {self.name}")
-            try:
-                self.setup()
-                # Verify setup was successful by checking for expected attributes
-                self._verify_setup()
-            except Exception as e:
-                logger.error(f"Error during setup of tool {self.name}: {str(e)}")
-                # Implement fallback behavior for failed setup
-                self._setup_fallback()
-    
-    @property
-    def function(self):
-        """Property for backwards compatibility with code that accesses .function directly."""
-        return self._function
-    
-    def _get_preprocessing_code(self, param_names: List[str]) -> str:
-        """Generate tool-specific preprocessing code."""
-        if not param_names:
-            return "pass"
-            
-        preprocessing_code = []
-        
-        # Handle specific tools
-        if self.name == "python":
-            # Add precision handling for Python tool
-            if "precision" in param_names:
-                preprocessing_code.append("if precision is not None and precision == 2 and 'currency' in code.lower(): precision = 2")
-        
-        elif self.name == "web_search":
-            # Add query normalization
-            if "query" in param_names:
-                preprocessing_code.append("query = query.strip()")
-        
-        # If no specific preprocessing, return pass
-        if not preprocessing_code:
-            return "pass"
-            
-        return "\n                ".join(preprocessing_code)
-    
-    def _post_process_result(self, result: Any) -> Any:
-        """Apply post-processing to tool results."""
-        # Handle None results
-        if result is None:
-            return "No results found."
-            
-        # Handle dictionary results with error key
-        if isinstance(result, dict) and "error" in result:
-            return f"Error: {result['error']}"
-            
-        # Handle specific tools
-        if self.name == "python":
-            # Ensure numeric results have consistent formatting
-            if isinstance(result, (int, float)):
-                # Format currency values with two decimal places
-                if isinstance(result, float):
-                    return str(result)
-                return str(result)
-                
-        # Default: convert to string if not already
-        if not isinstance(result, str):
-            return str(result)
-            
-        return result
-    
-    def _handle_tool_error(self, error: Exception) -> str:
-        """Handle tool errors with appropriate fallbacks."""
-        error_type = type(error).__name__
-        error_msg = str(error)
-        
-        # Import error handler if available
-        try:
-            from src.error_handler import handle_error
-            error_info = handle_error(error, self.name)
-            return f"Error: {error_info.get('message', error_msg)}"
-        except ImportError:
-            pass
-            
-        # Tool-specific error handling
-        if self.name == "web_search":
-            return f"Search failed: {error_msg}. Try a different search query."
-        elif self.name == "youtube":
-            return f"YouTube processing failed: {error_msg}. Check the video URL or try another video."
-        elif self.name == "python":
-            return f"Code execution error: {error_msg}"
-        elif self.name == "file_handler":
-            return f"File processing error: {error_msg}"
-            
-        # Generic error message
-        return f"Tool execution failed: {error_msg}"
-    
-    def _verify_setup(self):
-        """Verify that setup completed successfully by checking for expected attributes."""
-        # For DuckDuckGoSearchTool, check if requests attribute exists
-        if self.name == "web_search" and not hasattr(self, "requests"):
-            logger.warning(f"Tool {self.name} missing 'requests' attribute after setup")
-            self.requests = __import__('requests')
-        
-        # For YouTubeTool, check if youtube_transcript_api is available
-        if self.name == "youtube" and not hasattr(self, "transcript_api"):
-            try:
-                # Try to import the youtube_transcript_api
-                from youtube_transcript_api import YouTubeTranscriptApi
-                self.transcript_api = YouTubeTranscriptApi
-                logger.info(f"Added transcript_api attribute to {self.name} tool")
-            except ImportError:
-                logger.warning(f"Tool {self.name} could not import youtube_transcript_api")
-                
-        # For FileHandlerTool, ensure files directory exists
-        if self.name == "file_handler":
-            import os
-            os.makedirs("files", exist_ok=True)
-    
-    def _setup_fallback(self):
-        """Provide fallback implementation for tools with failed setup."""
-        # For DuckDuckGoSearchTool
-        if self.name == "web_search":
-            import requests
-            self.requests = requests
-            logger.info(f"Applied fallback setup for {self.name} tool")
-        
-        # For YouTubeTool, create a minimal fallback implementation
-        if self.name == "youtube":
-            logger.info(f"Applied fallback setup for {self.name} tool")
-            # Create minimal fallbacks for required attributes
-            self.requests = __import__('requests')
-            # Create a fallback for transcript_api if needed
-            
-        # For PythonInterpreterTool, ensure default parameters
-        if self.name == "python":
-            self.timeout_seconds = 10
-            self.authorized_imports = [
-                "math", "random", "datetime", "re", "json", 
-                "collections", "itertools", "functools"
-            ]
-            logger.info(f"Applied fallback setup for {self.name} tool")
 
 class EnhancedAgent:
     """Enhanced agent with file handling capabilities."""
@@ -254,35 +51,81 @@ class EnhancedAgent:
         tools = []
         tool_names = []
         
-        # List of tool initialization functions
-        tool_functions = [
-            get_file_handler_tool,
-            get_youtube_tool,
-            get_duckduckgo_search_tool,
-            get_webpage_tool,
-            get_python_interpreter_tool
+        # Import the actual tool classes directly
+        from src.youtube_tool import YouTubeTool
+        from src.duckduckgo_search_tool import DuckDuckGoSearchTool
+        from src.webpage_tool import WebpageTool
+        from src.python_interpreter_tool import PythonInterpreterTool
+        from src.file_handler_tool import get_file_handler_tool
+        
+        # Initialize file handler tool using the configuration function
+        try:
+            logger.info("Initializing file handler tool")
+            file_handler_config = get_file_handler_tool()
+            
+            # Create a proper Tool class for the file handler
+            class FileHandlerToolWrapper(Tool):
+                name = file_handler_config["name"]
+                description = file_handler_config["description"]
+                
+                inputs = {
+                    "task_id": {"type": "string", "description": "The task ID associated with the file"},
+                    "filename": {"type": "string", "description": "The name of the file to process"}
+                }
+                output_type = "string"
+                
+                def __init__(self):
+                    super().__init__()
+                    self._function = file_handler_config["function"]
+                    
+                def forward(self, task_id: str, filename: str):
+                    try:
+                        result = self._function(task_id=task_id, filename=filename)
+                        return str(result) if not isinstance(result, str) else result
+                    except Exception as e:
+                        logger.error(f"Error in file handler: {str(e)}")
+                        return f"Error: File not found: {filename}"
+            
+            file_tool = FileHandlerToolWrapper()
+            tools.append(file_tool)
+            tool_names.append("file_handler")
+            logger.info("Successfully initialized file handler tool")
+            
+        except Exception as e:
+            logger.error(f"Error initializing file handler tool: {str(e)}")
+        
+        # List of other tool classes to initialize
+        tool_classes = [
+            ("youtube", YouTubeTool), 
+            ("web_search", DuckDuckGoSearchTool),
+            ("visit_webpage", WebpageTool),
+            ("python", PythonInterpreterTool)
         ]
         
         # Initialize each tool with proper error handling
-        for tool_func in tool_functions:
+        for tool_name, tool_class in tool_classes:
             try:
-                # Get the tool configuration
-                tool_config = tool_func()
+                # Create tool instance directly
+                tool = tool_class()
                 
-                # Create a SmolTool instance
-                tool = SmolTool(
-                    name=tool_config["name"],
-                    description=tool_config["description"],
-                    function=tool_config["function"],
-                    parameters=tool_config["parameters"]
-                )
+                # Call setup if it exists
+                if hasattr(tool, 'setup') and callable(getattr(tool, 'setup')):
+                    logger.info(f"Calling setup method for tool {tool_name}")
+                    try:
+                        tool.setup()
+                        logger.info(f"Successfully initialized tool: {tool_name}")
+                    except Exception as setup_error:
+                        logger.warning(f"Setup failed for tool {tool_name}: {str(setup_error)}")
+                        # Continue with tool even if setup fails
+                        
                 tools.append(tool)
-                tool_names.append(tool.name)
-                logger.info(f"Successfully initialized tool: {tool.name}")
+                tool_names.append(tool_name)
+                logger.info(f"Successfully initialized tool: {tool_name}")
+                
             except Exception as e:
-                logger.error(f"Error initializing tool {tool_func.__name__}: {str(e)}")
+                logger.error(f"Error initializing tool {tool_name}: {str(e)}")
                 # Attempt to create a minimal fallback tool if initialization fails
-                fallback_tool = self._create_fallback_tool(tool_func.__name__)
+                fallback_tool = self._create_fallback_tool(tool_name)
                 if fallback_tool:
                     tools.append(fallback_tool)
                     tool_names.append(fallback_tool.name)
@@ -293,128 +136,115 @@ class EnhancedAgent:
     
     def _create_fallback_tool(self, tool_name: str) -> Optional[Tool]:
         """Create a minimal fallback tool for a failed initialization."""
-        base_name = tool_name.replace("get_", "").replace("_tool", "")
         
-        if "file_handler" in base_name:
-            return SmolTool(
-                name="file_handler",
-                description="Basic file handling capabilities (fallback mode)",
-                function=lambda **kwargs: {"error": "File handler in fallback mode with limited functionality"},
-                parameters={"type": "object", "properties": {"filename": {"type": "string", "description": "File to process"}, "task_id": {"type": "string", "description": "Task ID"}}}
-            )
-        elif "duckduckgo_search" in base_name or "web_search" in base_name:
+        if "web_search" in tool_name:
             # Import the minimal search tool implementation directly
             try:
                 # Try to re-import the proper tool
-                from src.duckduckgo_search_tool import get_duckduckgo_search_tool
+                from src.duckduckgo_search_tool import DuckDuckGoSearchTool
                 logger.info("Attempting to recreate web search tool")
-                return get_duckduckgo_search_tool()
+                tool = DuckDuckGoSearchTool()
+                if hasattr(tool, 'setup'):
+                    tool.setup()
+                return tool
             except Exception as e:
                 logger.error(f"Failed to create web search tool: {str(e)}")
-                # Minimal implementation in case of failure
-                return SmolTool(
-                    name="web_search",
-                    description="Minimal web search functionality",
-                    function=lambda query, **kwargs: self._minimal_web_search(query, **kwargs),
-                    parameters={"type": "object", "properties": {"query": {"type": "string", "description": "Search query"}}}
-                )
+                
+                # Create a minimal fallback search tool
+                class MinimalSearchTool(Tool):
+                    name = "web_search"
+                    description = "Minimal web search functionality"
+                    inputs = {
+                        "query": {"type": "string", "description": "Search query"},
+                        "num_results": {"type": "integer", "description": "Number of results", "nullable": True}
+                    }
+                    output_type = "string"
+                    
+                    def forward(self, query: str, num_results: int = 5) -> str:
+                        return self._minimal_web_search(query, num_results=num_results)
+                        
+                    def _minimal_web_search(self, query: str, **kwargs) -> str:
+                        """Minimal web search implementation as last resort fallback."""
+                        try:
+                            # First, optimize the query similar to the main search tool
+                            search_query = self._optimize_search_query(query)
+                            logger.info(f"Using optimized search query in fallback: {search_query}")
+                            
+                            # Now attempt the minimal search
+                            import requests
+                            from urllib.parse import quote_plus
+                            import re
+                            
+                            # Use the HTML endpoint which is more reliable
+                            search_url = f"https://html.duckduckgo.com/html/?q={quote_plus(search_query)}"
+                            
+                            response = requests.get(search_url, headers={
+                                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                            })
+                            
+                            if response.status_code != 200:
+                                return f"Search error: Failed with status code {response.status_code}"
+                            
+                            # Extract results using simple regex
+                            html = response.text
+                            
+                            # Basic title and snippet extraction
+                            titles = re.findall(r'<a class="result__a" href="([^"]+)"[^>]*>(.*?)</a>', html, re.DOTALL)
+                            snippets = re.findall(r'<a class="result__snippet"[^>]*>(.*?)</a>', html, re.DOTALL)
+                            
+                            if not titles:
+                                return f"No results found for query: {search_query}"
+                            
+                            # Format results
+                            num_results = min(5, len(titles)) 
+                            formatted_results = f"Search results for: {search_query}\n\n"
+                            
+                            for i in range(num_results):
+                                url, title = titles[i] if i < len(titles) else ("", "No title")
+                                snippet = snippets[i] if i < len(snippets) else "No description available"
+                                
+                                # Clean up HTML tags
+                                title = re.sub(r'<[^>]+>', '', title)
+                                snippet = re.sub(r'<[^>]+>', '', snippet)
+                                
+                                formatted_results += f"{i+1}. {title.strip()}\n"
+                                formatted_results += f"   {snippet.strip()}\n"
+                                formatted_results += f"   Source: DuckDuckGo - {url}\n\n"
+                            
+                            return formatted_results
+                            
+                        except Exception as e:
+                            return f"Search error: {str(e)}"
+                            
+                    def _optimize_search_query(self, query: str) -> str:
+                        """
+                        Optimize search queries by adding relevant keywords.
+                        This is a copy of the same functionality in DuckDuckGoSearchTool.
+                        """
+                        # Start with the original query
+                        search_query = query
+                        
+                        # Enhance album discography queries with better search terms
+                        if re.search(r'albums?.*between.*\d{4}.*\d{4}', query.lower()):
+                            artist_match = re.search(r'(.*?)\s+albums?', query.lower())
+                            year_range_match = re.search(r'between\s+(\d{4})\s+and\s+(\d{4})', query.lower())
+                            
+                            if artist_match and year_range_match:
+                                artist = artist_match.group(1).strip()
+                                start_year = year_range_match.group(1)
+                                end_year = year_range_match.group(2)
+                                search_query = f"{artist} studio albums discography between {start_year} and {end_year} wikipedia"
+                                
+                        # Add wiki terms for factual questions
+                        elif any(term in query.lower() for term in ["who", "when", "where", "how many"]):
+                            search_query = f"{query} facts wiki"
+                            
+                        return search_query
+                
+                return MinimalSearchTool()
         
         # Add other fallbacks as needed
         return None
-    
-    def _minimal_web_search(self, query: str, **kwargs) -> str:
-        """Minimal web search implementation as last resort fallback."""
-        try:
-            # First, optimize the query similar to the main search tool
-            search_query = self._optimize_search_query(query)
-            logger.info(f"Using optimized search query in fallback: {search_query}")
-            
-            # Now attempt the minimal search
-            import requests
-            from urllib.parse import quote_plus
-            import re
-            
-            # Use the HTML endpoint which is more reliable
-            search_url = f"https://html.duckduckgo.com/html/?q={quote_plus(search_query)}"
-            
-            response = requests.get(search_url, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            })
-            
-            if response.status_code != 200:
-                return f"Search error: Failed with status code {response.status_code}"
-            
-            # Extract results using simple regex
-            html = response.text
-            
-            # Basic title and snippet extraction
-            titles = re.findall(r'<a class="result__a" href="([^"]+)"[^>]*>(.*?)</a>', html, re.DOTALL)
-            snippets = re.findall(r'<a class="result__snippet"[^>]*>(.*?)</a>', html, re.DOTALL)
-            
-            if not titles:
-                return f"No results found for query: {search_query}"
-            
-            # Format results
-            num_results = min(5, len(titles)) 
-            formatted_results = f"Search results for: {search_query}\n\n"
-            
-            for i in range(num_results):
-                url, title = titles[i] if i < len(titles) else ("", "No title")
-                snippet = snippets[i] if i < len(snippets) else "No description available"
-                
-                # Clean up HTML tags
-                title = re.sub(r'<[^>]+>', '', title)
-                snippet = re.sub(r'<[^>]+>', '', snippet)
-                
-                formatted_results += f"{i+1}. {title.strip()}\n"
-                formatted_results += f"   {snippet.strip()}\n"
-                formatted_results += f"   Source: DuckDuckGo - {url}\n\n"
-            
-            return formatted_results
-            
-        except Exception as e:
-            return f"Search error: {str(e)}"
-            
-    def _optimize_search_query(self, query: str) -> str:
-        """
-        Optimize search queries by adding relevant keywords.
-        This is a copy of the same functionality in DuckDuckGoSearchTool.
-        
-        Args:
-            query: The original search query
-            
-        Returns:
-            An optimized search query
-        """
-        # Start with the original query
-        search_query = query
-        
-        # Enhance album discography queries with better search terms
-        if re.search(r'albums?.*between.*\d{4}.*\d{4}', query.lower()):
-            artist_match = re.search(r'(.*?)\s+albums?', query.lower())
-            year_range_match = re.search(r'between\s+(\d{4})\s+and\s+(\d{4})', query.lower())
-            
-            if artist_match and year_range_match:
-                artist = artist_match.group(1).strip()
-                start_year = year_range_match.group(1)
-                end_year = year_range_match.group(2)
-                search_query = f"{artist} studio albums discography between {start_year} and {end_year} wikipedia"
-                
-        # Enhance bird species queries with better search terms
-        elif re.search(r'bird species.*youtube', query.lower()):
-            # Extract video ID if present
-            video_id_match = re.search(r'([a-zA-Z0-9_-]{11})', query)
-            if video_id_match:
-                video_id = video_id_match.group(1)
-                search_query = f"bird species count ornithology wildlife video {video_id}"
-            else:
-                search_query = f"{query} ornithology species count"
-                
-        # Add wiki terms for factual questions
-        elif any(term in query.lower() for term in ["who", "when", "where", "how many"]):
-            search_query = f"{query} facts wiki"
-            
-        return search_query
     
     def _initialize_model(self) -> HfApiModel:
         """Initialize the model for the agent."""
@@ -432,7 +262,7 @@ class EnhancedAgent:
             "string", "copy", "textwrap", "calendar", "fractions",
             "statistics", "decimal", "pathlib", "uuid",
             "os", "sys", "requests", "pandas", "numpy", 
-            "csv", "xml", "html"
+            "csv", "xml", "html", "chess"
         ]
         
         # Add any custom imports from kwargs
@@ -475,7 +305,18 @@ class EnhancedAgent:
             filename = file_name or os.path.basename(file_path)
             try:
                 # Use the file handler tool to process the file
-                file_info = self.tools[0].function(task_id=task_id, filename=filename)
+                file_info = self.tools[0].forward(task_id=task_id, filename=filename)
+                
+                # Parse the result if it's a string representation of a dict
+                if isinstance(file_info, str):
+                    try:
+                        import json
+                        file_info = json.loads(file_info)
+                    except:
+                        # If it's not JSON, treat as error message
+                        file_context = f"\nFile Processing Error: {file_info}"
+                        file_info = {"error": file_info}
+                
                 if "error" not in file_info:
                     file_type = file_info.get("type", "unknown")
                     if file_type == "text":

@@ -231,14 +231,27 @@ class FileHandlerTool:
                     return True
                     
             # Attempt to download from API as last resort
-            api_url = f"/files/{task_id}"  # Update with actual API endpoint
-            response = requests.get(api_url)
+            # Construct the proper API endpoint URL
+            base_url = "https://agents-course-unit4-scoring.hf.space"
+            api_url = f"{base_url}/files/{task_id}"
+            
+            logger.info(f"Attempting to download file from: {api_url}")
+            
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+            
+            response = requests.get(api_url, headers=headers, timeout=30)
             if response.status_code == 200:
                 file_path = self.get_file_path(task_id, filename)
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
                 with open(file_path, 'wb') as f:
                     f.write(response.content)
+                logger.info(f"Successfully downloaded file to: {file_path}")
                 return True
-            return False
+            else:
+                logger.error(f"Failed to download file: HTTP {response.status_code}")
+                return False
         except Exception as e:
             logger.error(f"Error downloading file {filename}: {str(e)}")
             return False

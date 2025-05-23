@@ -11,7 +11,8 @@ import logging
 import functools
 from src.enhanced_agent import EnhancedAgent
 from smolagents import LiteLLMModel, CodeAgent
-from src.youtube_tool import YouTubeTool, get_youtube_tool  # Import from our local implementation
+from src.youtube_tool import YouTubeTool  # Import the YouTubeTool class directly
+from src.duckduckgo_search_tool import DuckDuckGoSearchTool  # Import tool classes directly
 from dotenv import load_dotenv
 
 # Load environment variables from config/.env
@@ -104,25 +105,60 @@ class GeminiAgent(EnhancedAgent):
         if "temperature" in kwargs:
             kwargs.pop("temperature")
         
-        # Create all tools list, starting with existing tools
-        all_tools = []
+        # Initialize tools directly (proper smolagents way)
+        tools = []
         
+        try:
+            # Initialize YouTube tool
+            logger.info("Initializing YouTube tool")
+            youtube_tool = YouTubeTool()
+            youtube_tool.setup()  # Call setup if the tool has it
+            tools.append(youtube_tool)
+            logger.info("Successfully initialized YouTube tool")
+        except Exception as e:
+            logger.error(f"Error initializing YouTube tool: {str(e)}")
+        
+        try:
+            # Initialize DuckDuckGo search tool
+            logger.info("Initializing DuckDuckGo search tool")
+            search_tool = DuckDuckGoSearchTool()
+            search_tool.setup()  # Call setup if the tool has it
+            tools.append(search_tool)
+            logger.info("Successfully initialized DuckDuckGo search tool")
+        except Exception as e:
+            logger.error(f"Error initializing DuckDuckGo search tool: {str(e)}")
+            
+        try:
+            # Import and initialize webpage tool directly
+            from src.webpage_tool import WebpageTool
+            logger.info("Initializing webpage tool")
+            webpage_tool = WebpageTool()
+            tools.append(webpage_tool)
+            logger.info("Successfully initialized webpage tool")
+        except Exception as e:
+            logger.error(f"Error initializing webpage tool: {str(e)}")
+            
+        try:
+            # Import and initialize Python interpreter tool directly
+            from src.python_interpreter_tool import PythonInterpreterTool
+            logger.info("Initializing Python interpreter tool")
+            python_tool = PythonInterpreterTool()
+            tools.append(python_tool)
+            logger.info("Successfully initialized Python interpreter tool")
+        except Exception as e:
+            logger.error(f"Error initializing Python interpreter tool: {str(e)}")
+            
         # Check if we have existing tools
         if hasattr(self, 'tools') and self.tools:
-            all_tools.extend(self.tools)
-        
-        # Check if YouTube tool is already in the tools list
-        has_youtube_tool = any(tool.name == "youtube" for tool in all_tools)
-        
-        # Add YouTube tool only if it's not already present
-        if not has_youtube_tool:
-            logger.info("Adding YouTube tool to agent")
-            youtube_tool = get_youtube_tool()
-            all_tools.append(youtube_tool)
+            # Add any tools from the parent class that aren't already included
+            existing_tool_names = [tool.name for tool in tools]
+            for tool in self.tools:
+                if tool.name not in existing_tool_names:
+                    tools.append(tool)
         
         # Create the agent with Gemini-optimized settings
         return CodeAgent(
-            tools=all_tools,
+            tools=tools,
             model=self.model,
             additional_authorized_imports=additional_authorized_imports,
             planning_interval=planning_interval,
