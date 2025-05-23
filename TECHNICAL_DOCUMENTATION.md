@@ -77,7 +77,7 @@ def _execute_hierarchical_search(self, query, section_filter, year_range, strate
 **Performance Optimization**:
 - **Data Size Reduction**: 95% less data transfer for album queries
 - **Response Time**: 15-30 seconds vs 60+ second timeouts
-- **Success Rate**: 100% vs 25% with traditional approach
+- **Success Rate**: Significant improvement vs traditional approach
 
 ### **Vision Analysis Tool**
 
@@ -200,10 +200,10 @@ The system prompt includes:
 
 | Metric | Original System | Enhanced System | Improvement |
 |--------|----------------|-----------------|-------------|
-| **Success Rate** | 25% (1/4) | 100% (4/4) | +300% |
+| **Success Rate** | 1/4 questions | 4/4 in initial testing | Significant improvement |
 | **Wikipedia Data Transfer** | 50KB+ per query | 2-5KB average | 95% reduction |
 | **Response Time** | 60+ seconds (timeout) | 15-30 seconds | 50-75% faster |
-| **Tool Reliability** | 3/8 tools working | 8/8 tools working | 100% operational |
+| **Tool Reliability** | 3/8 tools working | 8/8 tools working | Full operational status |
 | **Multi-Modal Support** | Text only | Text + Vision + Audio | Full spectrum |
 
 ### **Resource Efficiency**
